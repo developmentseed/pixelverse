@@ -2,6 +2,7 @@
 
 Cloud Native Tooling to generate, store and accessing geospatial embeddings. 
 
+Please note, very much in protoyping form and under development 
 ## Development Setup
 
 This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
