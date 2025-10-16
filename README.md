@@ -1,6 +1,6 @@
 # pixelverse
 
-A modern Python package using uv for dependency management.
+Cloud Native Tooling to generate, store and accessing geospatial embeddings. 
 
 ## Development Setup
 
