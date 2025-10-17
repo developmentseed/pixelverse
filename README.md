@@ -1,11 +1,12 @@
 # pixelverse
 
-Cloud Native Tooling to generate, store and accessing geospatial embeddings. 
+Cloud Native Tooling to generate and store pixelwise geospatial embeddings.
 
-Please note, very much in protoyping form and under development 
+Please note, very much in prototyping form and under development
+
 ## Development Setup
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
+This project uses [uv](https://github.com/astral-sh/uv) and pre-commit for development.
 
 ### Prerequisites
 
@@ -15,64 +16,10 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Pytho
 ### Installation
 
 ```bash
-# Install dependencies (including dev dependencies)
-uv sync --all-groups
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync --all-extras
+uv run pre-commit install
 
-# Or install just the package
-uv sync
+# optionally run pre-commit hooks manually
+uv run pre-commit run --all-files
 ```
-
-### Development Tools
-
-This project uses the following tools for code quality:
-
-- **black**: Code formatting (line-length: 100)
-- **ruff**: Fast linting and import sorting
-- **ty**: Type checking (experimental Astral type checker)
-
-### Running Development Tools
-
-```bash
-# Format code with black
-uv run black src/
-
-# Lint with ruff
-uv run ruff check src/
-
-# Auto-fix ruff issues
-uv run ruff check --fix src/
-
-# Type check with ty
-uv run ty check src/
-
-# Format imports with ruff
-uv run ruff check --select I --fix src/
-```
-
-### Running the CLI
-
-```bash
-# Run the pixelverse command
-uv run pixelverse
-```
-
-### Project Structure
-
-```
-pixelverse/
-├── src/
-│   └── pixelverse/
-│       ├── __init__.py
-│       └── py.typed
-├── pyproject.toml
-├── README.md
-└── .python-version
-```
-
-## Contributing
-
-1. Install development dependencies: `uv sync --all-groups`
-2. Make your changes
-3. Format code: `uv run black src/`
-4. Check linting: `uv run ruff check src/`
-5. Check types: `uv run ty check src/`
