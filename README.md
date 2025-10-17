@@ -6,7 +6,7 @@ We are working to #FreeTheEmbeddings and make geospatial embeddings available to
 
 > [!WARNING]
 >
-> pixelverse is in development -- expect frequent releases and possible bugs or missing features
+> `pixelverse` is in development -- expect frequent releases and possible bugs or missing features
 
 ## Getting started
 
@@ -23,7 +23,7 @@ uv run pre-commit run --all-files
 
 ### Pixelwise Geospatial Foundation Models
 
-Pixelverse provides access to a growing collection of pixelwise geospatial foundation models.
+`pixelverse` provides access to a growing collection of pixelwise geospatial foundation models.
 You can list available models with:
 
 ```bash
