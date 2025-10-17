@@ -7,12 +7,14 @@ name = "pixelverse"
 version = "0.1.0"
 description = "Cloud Native Tooling to generate and process pixelwise geospatial embeddings."
 readme = "README.md"
+license = { file = "LICENSE" }
 authors = [
   { name = "Martha Morrissey", email = "martha@developmentseed.org" },
   { name = "Isaac Corley", email = "isaac.corley@proton.me" },
 ]
 requires-python = ">=3.13"
 classifiers = [
+  "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.13",
