@@ -28,7 +28,8 @@ def list_models() -> list[str]:
 
 
 def get_weights(name: str) -> Weights:
-    assert name in _model_weights, f"Model {name} not found"
+    if name not in _model_weights:
+        raise KeyError(f"Model {name} not found")
     return _model_weights[name]  # type: ignore
 
 
