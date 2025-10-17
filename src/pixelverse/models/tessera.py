@@ -208,7 +208,6 @@ class TESSERA_WEIGHTS(WeightsEnum):
                 "B8A",
                 "B11",
                 "B12",
-                "S2",
                 "S2_DOY",
                 "VV",
                 "VH",
