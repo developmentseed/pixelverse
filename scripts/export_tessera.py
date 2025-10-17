@@ -30,6 +30,11 @@ if __name__ == "__main__":
     state_dict = {k: v for k, v in state_dict.items() if k.split(".")[0] in modules}
     model.load_state_dict(state_dict, strict=True)
     torch.save(model.state_dict(), "model.pt")
+    model.load_state_dict(torch.load("model.pt", map_location="cpu"), strict=True)
+
+    # Export the encoders
+    torch.save(model.s2_backbone.state_dict(), "s2_encoder.pt")
+    torch.save(model.s1_backbone.state_dict(), "s1_encoder.pt")
 
     # Export the model and save to model_exported_program.pt2.
     example_inputs = torch.randn(1, 10, 14)
@@ -38,3 +43,18 @@ if __name__ == "__main__":
         mod=model, args=(example_inputs,), dynamic_shapes={"x": dims}
     )
     torch.export.save(model_program, "model_exported_program.pt2")
+
+    # Export the s1 and s2 encoders
+    example_inputs = torch.randn(1, 10, 11)
+    dims = (Dim.AUTO, Dim.AUTO, 11)
+    model_program = torch.export.export(
+        mod=model.s2_backbone, args=(example_inputs,), dynamic_shapes={"x": dims}
+    )
+    torch.export.save(model_program, "s2_encoder_exported_program.pt2")
+
+    example_inputs = torch.randn(1, 10, 3)
+    dims = (Dim.AUTO, Dim.AUTO, 3)
+    model_program = torch.export.export(
+        mod=model.s1_backbone, args=(example_inputs,), dynamic_shapes={"x": dims}
+    )
+    torch.export.save(model_program, "s1_encoder_exported_program.pt2")
