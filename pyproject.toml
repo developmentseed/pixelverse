@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "uv_build"
-requires = [ "uv-build>=0.9.1,<0.10" ]
+requires = [ "uv-build>=0.9.3,<0.10" ]
 
 [project]
 name = "pixelverse"
