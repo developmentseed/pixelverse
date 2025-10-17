@@ -5,10 +5,17 @@ import pixelverse as pv
 
 def test_models():
     assert pv.list_models() == ["tessera"]
-    for model in pv.list_models():
-        model, transforms = pv.create_model(model)
-        assert model is not None
-        assert transforms is not None
+    for model_name in pv.list_models():
+        model, transforms = pv.create_model(model_name)
+        weights = pv.get_weights(model_name)
+        assert isinstance(model, torch.nn.Module)
+        assert isinstance(transforms, torch.nn.Sequential)
+        assert len(transforms)
+        b, t, c = 2, 10, weights.meta["num_channels"]
+        x = torch.randn(b, t, c)
+        y = transforms(x)
+        assert y.shape == x.shape
+        assert y.dtype == x.dtype
 
 
 @torch.inference_mode()

@@ -3,8 +3,9 @@
 from typing import Any
 
 import torch
-import torchvision.transforms.v2 as T
 from torchvision.models._api import Weights, WeightsEnum
+
+from pixelverse.models.transforms import PixelTimeSeriesNormalize
 
 
 class TemporalAwarePooling(torch.nn.Module):
@@ -187,7 +188,7 @@ TESSERA_MEAN = S2_BAND_MEAN + [0.0] + S1_BAND_MEAN + [0.0]
 TESSERA_STD = S2_BAND_STD + [1.0] + S1_BAND_STD + [1.0]
 
 tessera_transforms = torch.nn.Sequential(
-    T.Normalize(mean=TESSERA_MEAN, std=TESSERA_STD, inplace=True),
+    PixelTimeSeriesNormalize(mean=TESSERA_MEAN, std=TESSERA_STD, inplace=True),
 )
 
 
@@ -215,6 +216,8 @@ class TESSERA_WEIGHTS(WeightsEnum):
             ],
             "num_channels": 14,
             "embed_dim": 128,
+            "input_shape": [(None, None, 14)],
+            "output_shape": [(None, 128)],
             "mean": TESSERA_MEAN,
             "std": TESSERA_STD,
         },

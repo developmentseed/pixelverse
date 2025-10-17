@@ -1,6 +1,7 @@
 from typing import Any
 
 import torch
+from torchvision.models._api import Weights
 
 from pixelverse.models.tessera import TESSERA_WEIGHTS, tessera
 
@@ -13,6 +14,10 @@ _model_weights = {
 
 def list_models() -> list[str]:
     return list(_models.keys())
+
+
+def get_weights(name: str) -> Weights:
+    return _model_weights[name]  # type: ignore
 
 
 def create_model(
