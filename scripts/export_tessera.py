@@ -30,7 +30,6 @@ if __name__ == "__main__":
     state_dict = {k: v for k, v in state_dict.items() if k.split(".")[0] in modules}
     model.load_state_dict(state_dict, strict=True)
     torch.save(model.state_dict(), "model.pt")
-    model.load_state_dict(torch.load("model.pt", map_location="cpu"), strict=True)
 
     # Export the encoders
     torch.save(model.s2_backbone.state_dict(), "s2_encoder.pt")
