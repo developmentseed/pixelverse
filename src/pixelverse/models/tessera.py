@@ -7,14 +7,57 @@ from torchvision.models._api import Weights, WeightsEnum
 
 from pixelverse.models.transforms import PixelTimeSeriesNormalize
 
+S2_BAND_MEAN = [
+    1711.0938,
+    1308.8511,
+    1546.4543,
+    3010.1293,
+    3106.5083,
+    2068.3044,
+    2685.0845,
+    2931.5889,
+    2514.6928,
+    1899.4922,
+]
+S2_BAND_STD = [
+    1926.1026,
+    1862.9751,
+    1803.1792,
+    1741.7837,
+    1677.4543,
+    1888.7862,
+    1736.3090,
+    1715.8104,
+    1514.5199,
+    1398.4779,
+]
+S1_BAND_MEAN = [5484.0407, 3003.7812]
+S1_BAND_STD = [1871.2334, 1726.0670]
+TESSERA_S2_MEAN = S2_BAND_MEAN + [0.0]
+TESSERA_S2_STD = S2_BAND_STD + [1.0]
+TESSERA_S1_MEAN = S1_BAND_MEAN + [0.0]
+TESSERA_S1_STD = S1_BAND_STD + [1.0]
+TESSERA_MEAN = TESSERA_S2_MEAN + TESSERA_S1_MEAN
+TESSERA_STD = TESSERA_S2_STD + TESSERA_S1_STD
+
+tessera_transforms = torch.nn.Sequential(
+    PixelTimeSeriesNormalize(mean=TESSERA_MEAN, std=TESSERA_STD, inplace=True),
+)
+tessera_s2_transforms = torch.nn.Sequential(
+    PixelTimeSeriesNormalize(mean=TESSERA_S2_MEAN, std=TESSERA_S2_STD, inplace=True),
+)
+tessera_s1_transforms = torch.nn.Sequential(
+    PixelTimeSeriesNormalize(mean=TESSERA_S1_MEAN, std=TESSERA_S1_STD, inplace=True),
+)
+
 
 class TemporalAwarePooling(torch.nn.Module):
-    def __init__(self, input_dim):
+    def __init__(self, input_dim: int):
         super().__init__()
         self.query = torch.nn.Linear(input_dim, 1)
         self.temporal_context = torch.nn.GRU(input_dim, input_dim, batch_first=True)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # First capture temporal context through RNN
         x_context, _ = self.temporal_context(x)
         # Then calculate attention weights
@@ -23,7 +66,7 @@ class TemporalAwarePooling(torch.nn.Module):
 
 
 class TemporalEncoding(torch.nn.Module):
-    def __init__(self, d_model, num_freqs=64):
+    def __init__(self, d_model: int, num_freqs: int = 64):
         super().__init__()
         self.num_freqs = num_freqs
         self.d_model = d_model
@@ -37,7 +80,7 @@ class TemporalEncoding(torch.nn.Module):
         self.proj = torch.nn.Linear(2 * num_freqs, d_model)
         self.phase = torch.nn.Parameter(torch.zeros(1, 1, d_model))  # Learnable phase offset
 
-    def forward(self, doy):
+    def forward(self, doy: torch.Tensor) -> torch.Tensor:
         # doy: (B, seq_len, 1)
         t = doy / 365.0 * 2 * torch.pi  # Normalize to the 0-2π range
 
@@ -52,11 +95,11 @@ class TemporalEncoding(torch.nn.Module):
 
 
 class TemporalPositionalEncoder(torch.nn.Module):
-    def __init__(self, d_model):
+    def __init__(self, d_model: int):
         super().__init__()
         self.d_model = d_model
 
-    def forward(self, doy):
+    def forward(self, doy: torch.Tensor) -> torch.Tensor:
         # doy: [B, T] tensor containing DOY values (0-365)
         position = doy.unsqueeze(-1).float()  # Ensure float type
         div_term = torch.exp(
@@ -74,12 +117,12 @@ class TemporalPositionalEncoder(torch.nn.Module):
 class TransformerEncoder(torch.nn.Module):
     def __init__(
         self,
-        band_num,
-        latent_dim,
-        nhead=8,
-        num_encoder_layers=4,
-        dim_feedforward=512,
-        dropout=0.1,
+        band_num: int,
+        latent_dim: int,
+        nhead: int = 8,
+        num_encoder_layers: int = 4,
+        dim_feedforward: int = 512,
+        dropout: float = 0.1,
     ):
         super().__init__()
         # Total input dimension: bands
@@ -111,7 +154,7 @@ class TransformerEncoder(torch.nn.Module):
         # Temporal Aware Pooling
         self.attn_pool = TemporalAwarePooling(latent_dim * 4)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, seq_len, 10 bands + 1 doy)
         # Split bands and doy
         bands = x[:, :, :-1]  # All columns except last one
@@ -158,40 +201,6 @@ class Tessera(torch.nn.Module):
         return fused
 
 
-S2_BAND_MEAN = [
-    1711.0938,
-    1308.8511,
-    1546.4543,
-    3010.1293,
-    3106.5083,
-    2068.3044,
-    2685.0845,
-    2931.5889,
-    2514.6928,
-    1899.4922,
-]
-S2_BAND_STD = [
-    1926.1026,
-    1862.9751,
-    1803.1792,
-    1741.7837,
-    1677.4543,
-    1888.7862,
-    1736.3090,
-    1715.8104,
-    1514.5199,
-    1398.4779,
-]
-S1_BAND_MEAN = [5484.0407, 3003.7812]
-S1_BAND_STD = [1871.2334, 1726.0670]
-TESSERA_MEAN = S2_BAND_MEAN + [0.0] + S1_BAND_MEAN + [0.0]
-TESSERA_STD = S2_BAND_STD + [1.0] + S1_BAND_STD + [1.0]
-
-tessera_transforms = torch.nn.Sequential(
-    PixelTimeSeriesNormalize(mean=TESSERA_MEAN, std=TESSERA_STD, inplace=True),
-)
-
-
 class TESSERA_WEIGHTS(WeightsEnum):
     TESSERA = Weights(
         url="https://hf.co/isaaccorley/tessera/resolve/51afe75b724d387ef9fcb6f6e090a5be0b906919/model.pt",
@@ -221,10 +230,70 @@ class TESSERA_WEIGHTS(WeightsEnum):
             "std": TESSERA_STD,
         },
     )
+    TESSERA_S2_ENCODER = Weights(
+        url="https://hf.co/isaaccorley/tessera/resolve/11dda783c258148bc6342832df6ef8dc05963702/s2_encoder.pt",
+        transforms=tessera_s2_transforms,
+        meta={
+            "bands": [
+                "B2",
+                "B3",
+                "B4",
+                "B5",
+                "B6",
+                "B7",
+                "B8",
+                "B8A",
+                "B11",
+                "B12",
+                "S2_DOY",
+            ],
+            "num_channels": 11,
+            "embed_dim": 512,
+            "input_shape": [(None, None, 11)],
+            "output_shape": [(None, 512)],
+            "mean": TESSERA_S2_MEAN,
+            "std": TESSERA_S2_STD,
+        },
+    )
+    TESSERA_S1_ENCODER = Weights(
+        url="https://hf.co/isaaccorley/tessera/resolve/439ae74f34d3db458976138907302ac1b2ca4903/s1_encoder.pt",
+        transforms=tessera_s1_transforms,
+        meta={
+            "bands": [
+                "VV",
+                "VH",
+                "S1_DOY",
+            ],
+            "num_channels": 3,
+            "embed_dim": 512,
+            "input_shape": [(None, None, 3)],
+            "output_shape": [(None, 512)],
+            "mean": TESSERA_S1_MEAN,
+            "std": TESSERA_S1_STD,
+        },
+    )
 
 
 def tessera(weights: TESSERA_WEIGHTS | None = None, *args: Any, **kwargs: Any) -> Tessera:
     model = Tessera(*args, **kwargs)
+    if weights is not None:
+        model.load_state_dict(weights.get_state_dict(progress=True), strict=True)
+    return model
+
+
+def tessera_s2_encoder(
+    weights: TESSERA_WEIGHTS | None = None, *args: Any, **kwargs: Any
+) -> TransformerEncoder:
+    model = Tessera(*args, **kwargs).s2_backbone
+    if weights is not None:
+        model.load_state_dict(weights.get_state_dict(progress=True), strict=True)
+    return model
+
+
+def tessera_s1_encoder(
+    weights: TESSERA_WEIGHTS | None = None, *args: Any, **kwargs: Any
+) -> TransformerEncoder:
+    model = Tessera(*args, **kwargs).s1_backbone
     if weights is not None:
         model.load_state_dict(weights.get_state_dict(progress=True), strict=True)
     return model

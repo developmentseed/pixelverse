@@ -3,12 +3,23 @@ from typing import Any
 import torch
 from torchvision.models._api import Weights
 
-from pixelverse.models.tessera import TESSERA_WEIGHTS, tessera
+from pixelverse.models.tessera import (
+    TESSERA_WEIGHTS,
+    tessera,
+    tessera_s1_encoder,
+    tessera_s2_encoder,
+)
 
-_models = {"tessera": tessera}
+_models = {
+    "tessera": tessera,
+    "tessera_s2_encoder": tessera_s2_encoder,
+    "tessera_s1_encoder": tessera_s1_encoder,
+}
 
 _model_weights = {
     "tessera": TESSERA_WEIGHTS.TESSERA,
+    "tessera_s2_encoder": TESSERA_WEIGHTS.TESSERA_S2_ENCODER,
+    "tessera_s1_encoder": TESSERA_WEIGHTS.TESSERA_S1_ENCODER,
 }
 
 
@@ -17,6 +28,8 @@ def list_models() -> list[str]:
 
 
 def get_weights(name: str) -> Weights:
+    if name not in _model_weights:
+        raise KeyError(f"Model {name} not found")
     return _model_weights[name]  # type: ignore
 
 
