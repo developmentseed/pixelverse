@@ -1,8 +1,12 @@
-# pixelverse
+<p align="center">
+    <br>
+    <img src="./assets/logo.png" width="600"/>
+    <br>
+<p>
 
 Cloud native tooling to generate and store pixelwise geospatial foundation model embeddings.
 
-We are working to #FreeTheEmbeddings and make geospatial embeddings available to all.
+We are working to **#FreeTheEmbeddings** and make geospatial embeddings available to all.
 
 > [!WARNING]
 >
