@@ -29,8 +29,6 @@ dependencies = [
   "zarr>=3.1.3",
 ]
 
-scripts.pixelverse = "pixelverse:main"
-
 [dependency-groups]
 dev = [
   "ipykernel>=7.0.1",
@@ -100,20 +98,6 @@ addopts = [
   "-m",
   "not integration",
 ]
-
-[tool.semantic_release]
-version_toml = [ "pyproject.toml:project.version:nf" ]
-version_variables = [ "src/pixelverse/__init__.py:__version__" ]
-
-build_command = """
-curl -LsSf https://astral.sh/uv/install.sh | sh && \
-export PATH=$HOME/.local/bin:$PATH && \
-uv lock && \
-git add uv.lock
-"""
-
-[tool.semantic_release.branches.main]
-match = "main"
 
 [tool.numpydoc_validation]
 checks = [
