@@ -1,78 +1,50 @@
 # pixelverse
 
-Cloud Native Tooling to generate, store and accessing geospatial embeddings. 
+Cloud native tooling to generate and store pixelwise geospatial foundation model embeddings.
 
-Please note, very much in protoyping form and under development 
-## Development Setup
+We are working to #FreeTheEmbeddings and make geospatial embeddings available to all.
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable Python package management.
+> [!WARNING]
+>
+> `pixelverse` is in development -- expect frequent releases and possible bugs or missing features
 
-### Prerequisites
+## Getting started
 
-- Python 3.13+
-- [uv](https://github.com/astral-sh/uv) installed
-
-### Installation
+We use all the new hip tools like [uv](https://docs.astral.sh/uv/), [ty](https://docs.astral.sh/ty/), and [pre-commit](https://pre-commit.com/) to make this project easy to use.
 
 ```bash
-# Install dependencies (including dev dependencies)
-uv sync --all-groups
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync --all-extras
+uv run pre-commit install
 
-# Or install just the package
-uv sync
+# optionally run pre-commit hooks manually
+uv run pre-commit run --all-files
 ```
 
-### Development Tools
+### Pixelwise Geospatial Foundation Models
 
-This project uses the following tools for code quality:
-
-- **black**: Code formatting (line-length: 100)
-- **ruff**: Fast linting and import sorting
-- **ty**: Type checking (experimental Astral type checker)
-
-### Running Development Tools
+`pixelverse` provides access to a growing collection of pixelwise geospatial foundation models.
+You can list available models with:
 
 ```bash
-# Format code with black
-uv run black src/
-
-# Lint with ruff
-uv run ruff check src/
-
-# Auto-fix ruff issues
-uv run ruff check --fix src/
-
-# Type check with ty
-uv run ty check src/
-
-# Format imports with ruff
-uv run ruff check --select I --fix src/
+uv run python -c "import pixelverse as pv; print(pv.list_models())"
 ```
 
-### Running the CLI
+#### Supported Models
 
-```bash
-# Run the pixelverse command
-uv run pixelverse
+- [**Tessera**](https://arxiv.org/abs/2506.20380): Tessera is a pixelwise time-series geospatial foundation model. It takes as input a 14-channel time series of pixel values, `(10 S2 bands, 1 S2 DOY, 2 S1 bands, and 1 S1 DOY)` and outputs a `128`-dimensional embedding.
+
+### Citing
+
+If you use this software in your research, please cite:
+
+```bibtex
+@misc{pixelverse,
+  title={Pixelverse: Pixelwise Geospatial Embeddings for All},
+  author={Morrissey, Martha and Corley, Isaac},
+  year={2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished={\url{https://github.com/developmentseed/pixelverse}}
+}
 ```
-
-### Project Structure
-
-```
-pixelverse/
-├── src/
-│   └── pixelverse/
-│       ├── __init__.py
-│       └── py.typed
-├── pyproject.toml
-├── README.md
-└── .python-version
-```
-
-## Contributing
-
-1. Install development dependencies: `uv sync --all-groups`
-2. Make your changes
-3. Format code: `uv run black src/`
-4. Check linting: `uv run ruff check src/`
-5. Check types: `uv run ty check src/`

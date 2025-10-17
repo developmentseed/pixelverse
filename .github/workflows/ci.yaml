@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7.1
+        with:
+            enable-cache: true
+            python-version: 3.13
+      - run: uv run --all-extras --dev pytest -vvv --cov=src
+      - name: Report Coverage
+        run: uv run --all-extras --dev coverage report -m
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7.1
+        with:
+            enable-cache: true
+            python-version: 3.13
+      - name: pre-commit
+        run: uv run --all-extras --dev pre-commit run --all-files -v
