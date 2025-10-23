@@ -46,7 +46,9 @@ def get_s2_times_series(
             limit=1,
         )
 
-        selected_items.append(list(search.items())[0])
+        selected_items.append(
+            list(search.items())[0]
+        )  # TO-DO fix to account for large areas
 
     if not selected_items:
         raise ValueError(f"No Sentinel-2 images found for bbox {bbox} in year {year}")
