@@ -9,16 +9,22 @@ EARTHSEARCH_URL = "https://earth-search.aws.element84.com/v1"
 def get_s2_times_series(
     bbox: tuple[float], year: int, stac_host: str = EARTHSEARCH_URL
 ) -> xr.Dataset:
-    """Fetches Sentinel-2 imagery for a given bounding box for each month of a specified year.
+    """Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
 
-    Args:
-        bbox (tuple[float]): Bounding box coordinates [min_lon, min_lat, max_lon, max_lat].
-        year (int): Year for which to fetch the imagery.
-        stac_host (str): STAC host URL.
+    Parameters
+    ----------
+    bbox : tuple[float]
+        Bounding box coordinates (min_lon, min_lat, max_lon, max_lat).
+    year : int
+        Year for which to fetch the imagery.
+    stac_host : str, optional
+        STAC host URL. Defaults to Earth Search AWS.
 
-    Returns:
-        xr.Dataset: An xarray Dataset containing a time series of Sentinel-2,
-                   with the lowest cloud cover image per month selected.
+    Returns
+    -------
+    xr.Dataset
+        An xarray Dataset containing a time series of Sentinel-2,
+        with the lowest cloud cover image per month selected.
     """
     client = Client.open(stac_host)
 
@@ -29,13 +35,9 @@ def get_s2_times_series(
         # Calculate start and end dates for this month
         start_date = pd.Timestamp(year=year, month=month, day=1)
         if month == 12:
-            end_date = pd.Timestamp(year=year + 1, month=1, day=1) - pd.Timedelta(
-                seconds=1
-            )
+            end_date = pd.Timestamp(year=year + 1, month=1, day=1) - pd.Timedelta(seconds=1)
         else:
-            end_date = pd.Timestamp(year=year, month=month + 1, day=1) - pd.Timedelta(
-                seconds=1
-            )
+            end_date = pd.Timestamp(year=year, month=month + 1, day=1) - pd.Timedelta(seconds=1)
 
         search = client.search(
             collections=["sentinel-2-l2a"],
@@ -45,9 +47,7 @@ def get_s2_times_series(
             limit=1,
         )
 
-        selected_items.append(
-            list(search.items())[0]
-        )  # TO-DO fix to account for large areas
+        selected_items.append(list(search.items())[0])  # TO-DO fix to account for large areas
 
     if not selected_items:
         raise ValueError(f"No Sentinel-2 images found for bbox {bbox} in year {year}")
