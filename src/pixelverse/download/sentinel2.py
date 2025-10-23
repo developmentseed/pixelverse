@@ -1,19 +1,18 @@
-from pystac_client import Client
-from sympy import li
+import pandas as pd
 import xarray as xr
 from odc.stac import stac_load
-import pandas as pd
+from pystac_client import Client
 
 EARTHSEARCH_URL = "https://earth-search.aws.element84.com/v1"
 
 
 def get_s2_times_series(
-    bbox: list[int], year: int, stac_host: str = EARTHSEARCH_URL
+    bbox: tuple[float], year: int, stac_host: str = EARTHSEARCH_URL
 ) -> xr.Dataset:
     """Fetches Sentinel-2 imagery for a given bounding box for each month of a specified year.
 
     Args:
-        bbox (list[int]): Bounding box coordinates [min_lon, min_lat, max_lon, max_lat].
+        bbox (tuple[float]): Bounding box coordinates [min_lon, min_lat, max_lon, max_lat].
         year (int): Year for which to fetch the imagery.
         stac_host (str): STAC host URL.
 
@@ -56,7 +55,7 @@ def get_s2_times_series(
     # Load the selected items into an xarray dataset
     dset = stac_load(
         selected_items,
-        bbox=bbox,
+        bbox=bbox,  # type: ignore[invalid-argument-type]
         chunks={"time": 1, "x": 2048, "y": 2048},
         bands=[
             "blue",

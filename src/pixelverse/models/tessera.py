@@ -68,8 +68,8 @@ class TemporalAwarePooling(torch.nn.Module):
 class TemporalEncoding(torch.nn.Module):
     def __init__(self, d_model: int, num_freqs: int = 64):
         super().__init__()
-        self.num_freqs = num_freqs
-        self.d_model = d_model
+        self.num_freqs = num_freqs  # type: ignore[unresolved-attribute]
+        self.d_model = d_model  # type: ignore[unresolved-attribute]
 
         # Learnable frequency parameters (more flexible than fixed frequencies)
         self.freqs = torch.nn.Parameter(
@@ -97,7 +97,7 @@ class TemporalEncoding(torch.nn.Module):
 class TemporalPositionalEncoder(torch.nn.Module):
     def __init__(self, d_model: int):
         super().__init__()
-        self.d_model = d_model
+        self.d_model = d_model  # type: ignore[unresolved-attribute]
 
     def forward(self, doy: torch.Tensor) -> torch.Tensor:
         # doy: [B, T] tensor containing DOY values (0-365)
@@ -172,7 +172,7 @@ class TransformerEncoder(torch.nn.Module):
 class Tessera(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.embed_dim = 128
+        self.embed_dim = 128  # type: ignore[unresolved-attribute]
         self.s2_backbone = TransformerEncoder(
             band_num=10,
             latent_dim=self.embed_dim,
