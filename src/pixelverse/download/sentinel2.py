@@ -79,7 +79,6 @@ def get_s2_times_series(
             "blue",
             "green",
             "red",
-            "red",
             "rededge1",
             "rededge2",
             "rededge3",
