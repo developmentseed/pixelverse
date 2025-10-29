@@ -25,6 +25,7 @@ dependencies = [
   "odc-stac>=0.4",
   "pystac>=1.14.1",
   "pystac-client>=0.9",
+  "rioxarray>=0.20",
   "torch>=2.9",
   "torchvision>=0.24",
   "xarray>=2025.10.1",
