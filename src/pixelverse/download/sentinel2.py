@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import pandas as pd
 import xarray as xr
 from odc.stac import stac_load
@@ -7,7 +9,10 @@ EARTHSEARCH_URL = "https://earth-search.aws.element84.com/v1"
 
 
 def get_s2_times_series(
-    bbox: tuple[float], year: int, stac_host: str = EARTHSEARCH_URL
+    bbox: tuple[float],
+    year: int,
+    stac_host: str = EARTHSEARCH_URL,
+    cloudcover_max: int = 50,
 ) -> xr.Dataset:
     """Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
 
@@ -19,6 +24,8 @@ def get_s2_times_series(
         Year for which to fetch the imagery.
     stac_host : str, optional
         STAC host URL. Defaults to Earth Search AWS.
+    cloudcover_max : int
+        Maximum cloud cover percentage for filtering images. Defaults to 50.
 
     Returns
     -------
@@ -43,11 +50,22 @@ def get_s2_times_series(
             collections=["sentinel-2-l2a"],
             bbox=bbox,
             datetime=f"{start_date.isoformat()}Z/{end_date.isoformat()}Z",
+            query={"eo:cloud_cover": {"lt": cloudcover_max}},
             sortby=["+properties.eo:cloud_cover"],
-            limit=1,
         )
 
-        selected_items.append(list(search.items())[0])  # TO-DO fix to account for large areas
+        # select lowest cloud cover for each unique MGRS tile
+        items = list(search.items())
+        if items:
+            tiles = defaultdict(list)
+            for item in items:
+                mgrs_tile = item.id.split("_")[1]
+                tiles[mgrs_tile].append(item)
+
+        selected_items.extend(
+            min(tile_items, key=lambda x: x.properties.get("eo:cloud_cover", 100))
+            for tile_items in tiles.values()
+        )
 
     if not selected_items:
         raise ValueError(f"No Sentinel-2 images found for bbox {bbox} in year {year}")
@@ -61,16 +79,20 @@ def get_s2_times_series(
             "blue",
             "green",
             "red",
-            "red",
             "rededge1",
             "rededge2",
             "rededge3",
             "nir",
+            "nir08",
             "swir16",
             "swir22",
-            "scl",
         ],
-        resolution=10,  # 10m resolution
+        resolution=10,  # 10m resolution,
     )
 
-    return dset
+    # time dim is first day of each month that appeared in the dataset
+    dset_monthly = dset.groupby("time.month").mean()
+    dset_monthly["month"] = dset.time.groupby("time.month").min().values
+    dset_monthly = dset_monthly.rename({"month": "time"})
+
+    return dset_monthly
