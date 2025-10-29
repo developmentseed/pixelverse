@@ -84,9 +84,9 @@ def get_s2_times_series(
             "rededge2",
             "rededge3",
             "nir",
+            "nir08",
             "swir16",
             "swir22",
-            "scl",
         ],
         resolution=10,  # 10m resolution,
     )
