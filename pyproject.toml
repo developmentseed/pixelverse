@@ -121,3 +121,7 @@ checks = [
   "RT02",
   "RT03",
 ]
+
+[tool.ty.src]
+include = [ "src", "tests" ]
+exclude = [ "notebooks" ]

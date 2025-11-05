@@ -11,26 +11,25 @@ repos:
     hooks:
       - id: check-yaml
       - id: check-json
+        exclude: '^notebooks/'
       - id: sort-simple-yaml
       - id: pretty-format-json
+        exclude: '^notebooks/'
       - id: debug-statements
       - id: trailing-whitespace
       - id: requirements-txt-fixer
+        exclude: '^notebooks/'
 
   - repo: https://github.com/numpy/numpydoc
     rev: v1.9.0
     hooks:
       - id: numpydoc-validation
+        exclude: '^notebooks/'
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.8.0
     hooks:
       - id: pyproject-fmt
-
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
-    hooks:
-      - id: nbstripout
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.22
@@ -53,6 +52,7 @@ repos:
         entry: uvx ty check
         args: [--python=.venv/]
         pass_filenames: false
+        exclude: '^notebooks/'
 
   - repo: local
     hooks:
