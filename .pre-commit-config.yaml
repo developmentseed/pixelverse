@@ -11,11 +11,14 @@ repos:
     hooks:
       - id: check-yaml
       - id: check-json
+        exclude: '^notebooks/'
       - id: sort-simple-yaml
       - id: pretty-format-json
+        exclude: '^notebooks/'
       - id: debug-statements
       - id: trailing-whitespace
       - id: requirements-txt-fixer
+        exclude: '^notebooks/'
 
   - repo: https://github.com/numpy/numpydoc
     rev: v1.9.0
