@@ -1136,6 +1136,7 @@ dependencies = [
     { name = "odc-stac" },
     { name = "pystac" },
     { name = "pystac-client" },
+    { name = "rioxarray" },
     { name = "torch" },
     { name = "torchvision" },
     { name = "xarray" },
@@ -1157,9 +1158,10 @@ dev = [
 requires-dist = [
     { name = "einops", specifier = ">=0.8.1" },
     { name = "numpy", specifier = ">=2.3.4" },
-    { name = "odc-stac", specifier = ">=0.4.0" },
+    { name = "odc-stac", specifier = ">=0.4" },
     { name = "pystac", specifier = ">=1.14.1" },
-    { name = "pystac-client", specifier = ">=0.9.0" },
+    { name = "pystac-client", specifier = ">=0.9" },
+    { name = "rioxarray", specifier = ">=0.20.0" },
     { name = "torch", specifier = ">=2.9" },
     { name = "torchvision", specifier = ">=0.24" },
     { name = "xarray", specifier = ">=2025.10.1" },
@@ -1540,6 +1542,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738, upload-time = "2025-08-18T20:46:00.542Z" },
+]
+
+[[package]]
+name = "rioxarray"
+version = "0.20.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pyproj" },
+    { name = "rasterio" },
+    { name = "xarray" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/ad/d9f7a6d197a44a2c8f53174bdea919b7df3c70ef5c14a13702888516609a/rioxarray-0.20.0.tar.gz", hash = "sha256:8bfc7e979edc7e30b4671d638a9be0e5a7d673dab2ea88e2445d3c7745599c02", size = 55038, upload-time = "2025-10-24T18:14:41.924Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/e5/4f4fc949e7eb8415a57091767969e1d314dcf06b74b85bbbf29991395af4/rioxarray-0.20.0-py3-none-any.whl", hash = "sha256:197b0638146dfc6093ef52f8bf8afb42757ca16bc2e0d87b6282ce54170c9799", size = 62690, upload-time = "2025-10-24T18:14:40.73Z" },
 ]
 
 [[package]]
