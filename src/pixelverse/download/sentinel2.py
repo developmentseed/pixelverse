@@ -123,7 +123,7 @@ def fill_missing_months_and_format(dset: xr.Dataset) -> xr.Dataset:
 
     existing_times = pd.DatetimeIndex(dset.time.values)
 
-    missing_months = sorted(set(range(1, 13)) - set(existing_times.month))
+    missing_months = sorted(set(range(1, 13)) - set(existing_times.month))  # type: ignore[unresolved-attribute]
 
     new_dates = pd.DatetimeIndex(
         [
