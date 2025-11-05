@@ -12,7 +12,7 @@ def get_s2_times_series(
     bbox: tuple[float],
     year: int,
     stac_host: str = EARTHSEARCH_URL,
-    cloudcover_max: int = 50,
+    cloudcover_max: int = 20,
 ) -> xr.Dataset:
     """Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
 
@@ -66,6 +66,11 @@ def get_s2_times_series(
             min(tile_items, key=lambda x: x.properties.get("eo:cloud_cover", 100))
             for tile_items in tiles.values()
         )
+        if not items:
+            print(
+                f"No images found for {year}-{month} with cloud cover < {cloudcover_max}% "
+                "using previous months' data"
+            )
 
     if not selected_items:
         raise ValueError(f"No Sentinel-2 images found for bbox {bbox} in year {year}")
@@ -96,3 +101,38 @@ def get_s2_times_series(
     dset_monthly = dset_monthly.rename({"month": "time"})
 
     return dset_monthly
+
+
+def fill_missing_months_and_format(dset: xr.Dataset) -> xr.Dataset:
+    """Fill missing months in the time series by forward filling previous data.
+
+    Parameters
+    ----------
+    dset : xr.Dataset
+        Input xarray Dataset with a time dimension representing months.
+        Expected to be the output of `get_s2_times_series`.
+
+    Returns
+    -------
+    xr.Dataset
+        An xarray Dataset wit day of year data variable added and missing months filled.
+    """
+
+    # add doy variable to format for model inference
+    dset["doy"] = dset.time.dt.dayofyear
+
+    existing_times = pd.DatetimeIndex(dset.time.values)
+
+    missing_months = sorted(set(range(1, 13)) - set(existing_times.month))  # type: ignore[unresolved-attribute]
+
+    new_dates = pd.DatetimeIndex(
+        [
+            pd.Timestamp(year=pd.Timestamp(dset.time.values[0]).year, month=m, day=15)
+            for m in missing_months
+        ]
+    )
+
+    combined_times = existing_times.append(new_dates).sort_values()
+    dset_filled = dset.reindex(time=combined_times, method="ffill")
+
+    return dset_filled
