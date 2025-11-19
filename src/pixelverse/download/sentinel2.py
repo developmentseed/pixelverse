@@ -98,7 +98,7 @@ def get_s2_times_series(
     )
 
     # time dim is first day of each month that appeared in the dataset
-    dset_monthly = dset.groupby("time.month").median()
+    dset_monthly = dset.groupby("time.month").mean(dtype="uint16")
     dset_monthly["month"] = dset.time.groupby("time.month").min().values
     dset_monthly = dset_monthly.rename({"month": "time"})
 
