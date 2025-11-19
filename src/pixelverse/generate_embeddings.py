@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import xarray as xr
 
@@ -76,3 +77,41 @@ def generate_embeddings(s2_dset: xr.Dataset, model_name: str = "tessera_s2_encod
     dset_embeddings.rio.write_crs(s2_dset.rio.crs, inplace=True)
 
     return dset_embeddings
+
+
+def quantize_embeddings(embeddings: xr.DataArray) -> xr.DataArray:
+    """
+    Quantize embeddings from float32 to int8 to save space (4x compression).
+
+    Normalizes each feature independently to the int8 range [-128, 127].
+
+    Parameters
+    ----------
+    embeddings : xr.DataArray
+        Float32 embeddings with shape (feature, y, x)
+
+    Returns
+    -------
+    xr.DataArray
+        Int8 quantized embeddings
+    """
+    # Calculate min/max per feature
+    min_vals = embeddings.min(dim=["y", "x"]).values  # (n_features,)
+    max_vals = embeddings.max(dim=["y", "x"]).values  # (n_features,)
+
+    # Normalize to [-128, 127] range per feature
+    scale = (max_vals - min_vals) / 255.0
+    scale = np.where(scale == 0, 1, scale)  # Avoid division by zero
+    offset = min_vals + (128.0 * scale)
+
+    # Quantize
+    quantized_values = np.round((embeddings.values - offset[:, None, None]) / scale[:, None, None])
+    quantized_values = np.clip(quantized_values, -128, 127).astype(np.int8)
+
+    # Create quantized DataArray
+    return xr.DataArray(
+        quantized_values,
+        dims=embeddings.dims,
+        coords=embeddings.coords,
+        attrs={"dtype": "int8", "quantized": True},
+    )
