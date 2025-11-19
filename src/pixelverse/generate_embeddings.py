@@ -105,10 +105,11 @@ def quantize_embeddings(embeddings: xr.DataArray) -> xr.Dataset:
 
     scale = (max_vals - min_vals) / 255.0
     scale = np.where(scale == 0, 1, scale)
-    offset = min_vals + (128.0 * scale)
 
-    quantized_values = np.round((embeddings.values - offset[:, None, None]) / scale[:, None, None])
-    quantized_values = np.clip(quantized_values, -128, 127).astype(np.int8)
+    quantized_values = np.round(
+        (embeddings.values - min_vals[:, None, None]) / scale[:, None, None]
+    )
+    quantized_values = np.clip(quantized_values, 0, 255).astype(np.uint8)
 
     # Create Dataset directly - most efficient
     return xr.Dataset(
