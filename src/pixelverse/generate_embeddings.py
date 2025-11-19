@@ -1,4 +1,5 @@
 import numpy as np
+import rioxarray  # noqa: F401
 import torch
 import xarray as xr
 
@@ -79,11 +80,13 @@ def generate_embeddings(s2_dset: xr.Dataset, model_name: str = "tessera_s2_encod
     return dset_embeddings
 
 
-def quantize_embeddings(embeddings: xr.DataArray) -> xr.DataArray:
+def quantize_embeddings(embeddings: xr.DataArray) -> xr.Dataset:
     """
     Quantize embeddings from float32 to int8 to save space (4x compression).
 
     Normalizes each feature independently to the int8 range [-128, 127].
+    The quantized embeddings can be used directly for similarity comparisons
+    and other operations without dequantization.
 
     Parameters
     ----------
@@ -92,26 +95,24 @@ def quantize_embeddings(embeddings: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
-    xr.DataArray
-        Int8 quantized embeddings
+    xr.Dataset
+        Dataset containing quantized int8 embeddings with 'embedding' variable
+        and spatial coordinates preserved
     """
-    # Calculate min/max per feature
-    min_vals = embeddings.min(dim=["y", "x"]).values  # (n_features,)
-    max_vals = embeddings.max(dim=["y", "x"]).values  # (n_features,)
 
-    # Normalize to [-128, 127] range per feature
+    min_vals = embeddings.min(dim=["y", "x"]).values
+    max_vals = embeddings.max(dim=["y", "x"]).values
+
     scale = (max_vals - min_vals) / 255.0
-    scale = np.where(scale == 0, 1, scale)  # Avoid division by zero
+    scale = np.where(scale == 0, 1, scale)
     offset = min_vals + (128.0 * scale)
 
-    # Quantize
     quantized_values = np.round((embeddings.values - offset[:, None, None]) / scale[:, None, None])
     quantized_values = np.clip(quantized_values, -128, 127).astype(np.int8)
 
-    # Create quantized DataArray
-    return xr.DataArray(
-        quantized_values,
-        dims=embeddings.dims,
+    # Create Dataset directly - most efficient
+    return xr.Dataset(
+        data_vars={"embedding": (embeddings.dims, quantized_values)},
         coords=embeddings.coords,
-        attrs={"dtype": "int8", "quantized": True},
+        attrs={"quantized": True},
     )
