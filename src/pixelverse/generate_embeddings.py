@@ -49,11 +49,13 @@ def generate_embeddings(s2_dset: xr.Dataset, model_name: str = "tessera_s2_encod
 
     # Prepare tensors
     # s2_stacked.values shape: (band, time, pixel) -> transpose to (pixel, time, band)
-    s2_tensor = torch.from_numpy(s2_stacked.values.transpose(2, 1, 0))  # (pixel, time, band)
+    s2_tensor = torch.from_numpy(
+        s2_stacked.values.transpose(2, 1, 0)
+    ).float()  # (pixel, time, band)
 
     # DOY tensor: expand to match number of pixels
     doy_tensor = (
-        torch.from_numpy(s2_dset.doy.values).unsqueeze(0).expand(s2_tensor.shape[0], -1)
+        torch.from_numpy(s2_dset.doy.values).unsqueeze(0).expand(s2_tensor.shape[0], -1).float()
     )  # (pixel, time)
 
     # Concatenate bands and DOY along last dimension
@@ -61,7 +63,7 @@ def generate_embeddings(s2_dset: xr.Dataset, model_name: str = "tessera_s2_encod
 
     # Run through model
     with torch.no_grad():
-        embeddings = model[0](x.float())
+        embeddings = model[0](x)
 
     # Convert back to xarray with spatial structure
     dset_embeddings = (
