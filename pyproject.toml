@@ -42,6 +42,9 @@ dev = [
   "ruff>=0.14.1",
   "ty>=0.0.1a23",
 ]
+docs = [
+  "zensical>=0.0.15",
+]
 
 [tool.ruff]
 target-version = "py313"
