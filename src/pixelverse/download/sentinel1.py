@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import xarray as xr
 from odc.stac import stac_load
@@ -68,7 +67,7 @@ def linear_to_decibel(dataarray: xr.DataArray) -> xr.DataArray:
     """
     # Mask out areas with 0 so that np.log10 is not undefined
     da_linear = dataarray.where(cond=dataarray != 0)
-    da_decibel = 10 * np.log10(da_linear)
+    da_decibel = 10 * xr.ufuncs.log10(da_linear)
     return da_decibel
 
 
