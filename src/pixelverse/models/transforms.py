@@ -1,5 +1,5 @@
 import torch
-import torchvision.transforms.v2 as T
+import torchvision.transforms as T
 from einops import rearrange
 
 
