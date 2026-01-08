@@ -20,7 +20,7 @@ and [prek](https://prek.j178.dev/) to make this project easy to use.
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --all-extras
-uv run prek install
+uv run prek install --install-hooks
 
 # optionally run pre-commit hooks manually
 uv run prek run --all-files
