@@ -102,6 +102,10 @@ addopts = [
   "not integration",
 ]
 
+[tool.ty.src]
+include = [ "src", "tests" ]
+exclude = [ "notebooks" ]
+
 [tool.numpydoc_validation]
 checks = [
   "GL06",
@@ -121,7 +125,3 @@ checks = [
   "RT02",
   "RT03",
 ]
-
-[tool.ty.src]
-include = [ "src", "tests" ]
-exclude = [ "notebooks" ]
