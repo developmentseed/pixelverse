@@ -14,15 +14,16 @@ We are working to **#FreeTheEmbeddings** and make geospatial embeddings availabl
 
 ## Getting started
 
-We use all the new hip tools like [uv](https://docs.astral.sh/uv/), [ty](https://docs.astral.sh/ty/), and [pre-commit](https://pre-commit.com/) to make this project easy to use.
+We use all the new hip tools like [uv](https://docs.astral.sh/uv/), [ty](https://docs.astral.sh/ty/),
+and [prek](https://prek.j178.dev/) to make this project easy to use.
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --all-extras
-uv run pre-commit install
+uv run prek install
 
 # optionally run pre-commit hooks manually
-uv run pre-commit run --all-files
+uv run prek run --all-files
 ```
 
 ### Pixelwise Geospatial Foundation Models
