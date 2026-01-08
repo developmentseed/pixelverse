@@ -125,3 +125,6 @@ checks = [
   "RT02",
   "RT03",
 ]
+
+[tool.typos.default.extend-words]
+inpt = "inpt"
