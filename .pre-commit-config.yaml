@@ -48,10 +48,11 @@ repos:
     hooks:
       - id: ty-check
         name: ty-check
-        language: python
-        entry: uvx ty check
+        language: unsupported
+        types: [python]
+        entry: .venv/bin/ty check
         args: [--python=.venv/]
-        pass_filenames: false
+        pass_filenames: true
         exclude: "^notebooks/"
 
   - repo: local
