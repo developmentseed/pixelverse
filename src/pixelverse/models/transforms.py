@@ -36,7 +36,7 @@ class PixelTimeSeriesNormalize(T.Normalize):  # numpydoc ignore=PR02
     def transform(self, inpt: torch.Tensor, params: dict[str, Any]) -> torch.Tensor:
         assert inpt.ndim in {2, 3}, (
             "Input must be a 2D (time, channels) or 3D (batch, time, channels) tensor, "
-            f"got ndim: {inpt.ndim} with shape: {inpt.shape}"
+            f"but got ndim: {inpt.ndim} with shape: {inpt.shape}"
         )
         if inpt.ndim == 2:
             x = rearrange(inpt, "t c -> () c () t")
