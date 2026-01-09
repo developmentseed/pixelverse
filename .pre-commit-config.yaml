@@ -55,10 +55,7 @@ repos:
         pass_filenames: true
         exclude: "^notebooks/"
 
-  - repo: local
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.22
     hooks:
       - id: uv-lock
-        name: Lock dependencies with uv
-        entry: uv lock
-        language: system
-        pass_filenames: false
