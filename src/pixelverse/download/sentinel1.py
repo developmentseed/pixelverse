@@ -3,11 +3,11 @@ import xarray as xr
 from odc.stac import stac_load
 from pystac_client import Client
 
-MPC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
-
 
 def get_s1_monthly_time_series(
-    bbox: tuple[float], year: int, stac_host: str = MPC_URL
+    bbox: tuple[int | float, int | float, int | float, int | float],
+    year: int,
+    stac_host: str = "https://planetarycomputer.microsoft.com/api/stac/v1",
 ) -> xr.Dataset:
     """Fetch Sentinel-1 imagery for a bounding box and return average monthly values.
 
@@ -37,7 +37,7 @@ def get_s1_monthly_time_series(
     # Load the selected items into an xarray dataset, combining overlapping tiles
     dset = stac_load(
         search.items(),
-        bbox=bbox,  # type: ignore[invalid-argument-type]
+        bbox=bbox,
         chunks={"time": 1, "x": 2048, "y": 2048},
         bands=["vv", "vh"],
         groupby="solar_day",
