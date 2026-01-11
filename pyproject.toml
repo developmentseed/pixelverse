@@ -36,6 +36,7 @@ dependencies = [
 dev = [
   "ipykernel>=7.0.1",
   "ipywidgets>=8.1.7",
+  "pandas-stubs>=2.3.3.251219",
   "prek>=0.2.27",
   "pytest>=8.4.2",
   "pytest-cov>=7",
