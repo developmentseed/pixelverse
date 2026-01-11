@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.11
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]
@@ -56,6 +56,6 @@ repos:
         exclude: "^notebooks/"
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.22
+    rev: 0.9.24
     hooks:
       - id: uv-lock
