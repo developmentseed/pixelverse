@@ -107,7 +107,7 @@ def test_quantize_full_pipeline(sample_s2_dataset, mocker):
     """
     Integration test for full embedding generation pipeline.
 
-    1. Generate embeddings: Pass through normaliation transform and model encoder
+    1. Generate embeddings: Pass through normalization transform and model encoder
     2. Embedding quantization: from float32 to uint8 dtype
     """
     # Generate embeddings
@@ -115,8 +115,8 @@ def test_quantize_full_pipeline(sample_s2_dataset, mocker):
     spy_encoder = mocker.spy(pv.models.tessera.TransformerEncoder, "forward")
     embeddings_ds = generate_embeddings(sample_s2_dataset)
     assert embeddings_ds.embedding.dtype == np.float32
-    assert spy_transform.call_count == 1  # ensure norm transform called at least once
-    assert spy_encoder.call_count == 1  # ensure model encoder called at least once
+    assert spy_transform.call_count == 1  # ensure norm transform called exactly once
+    assert spy_encoder.call_count == 1  # ensure model encoder called exactly once
 
     # Quantize embeddings
     quantized_ds = quantize_embeddings(embeddings_ds.embedding)
