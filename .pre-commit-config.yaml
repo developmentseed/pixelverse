@@ -14,7 +14,7 @@ repos:
         exclude: "^notebooks/"
       - id: sort-simple-yaml
       - id: pretty-format-json
-        exclude: "^notebooks/"
+        exclude: "(^notebooks/|tests/fixtures/.*)"
       - id: debug-statements
       - id: trailing-whitespace
       - id: requirements-txt-fixer

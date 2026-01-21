@@ -102,7 +102,7 @@ async def decode_tile_to_tensor(
 
 
 async def stac_to_xarray(
-    items: list[pystac.Item],
+    item: pystac.Item,
     # bbox, chunks
     bands: Sequence[str] = (
         "blue",
@@ -119,14 +119,14 @@ async def stac_to_xarray(
     # resolution, dtype, nodata
 ) -> xr.Dataset:
     """
-    Read STAC Items into xarray.Dataset.
+    Read a STAC Item into an xarray.Dataset.
 
-    Re-implementation of odc.stac.load using async-tiff and rasterix.
+    Partial re-implementation of odc.stac.load using async-tiff and rasterix.
 
     Parameters
     ----------
-    items : list[pystac.Item]
-        Iterable of STAC Items to read from.
+    item : pystac.Item
+        STAC Item containing one/multiple STAC Assets to read from.
     bands : list[str]
         List of satellite band names to read from the STAC Item's assets. Default is
         the Sentinel-2 10m and 20m spatial resolution bands.
@@ -138,97 +138,96 @@ async def stac_to_xarray(
         each band stacked in the shape of (time, height, width).
 
     """
-    for item in items:  # Loop through STAC Items
-        # Loop through STAC Assets (bands)
-        assets: list[pystac.Asset] = [item.assets[band] for band in bands]
-        # Get some metadata from first STAC Asset
-        asset: pystac.Asset = assets[0]
-        metadata: dict[str, Any] = asset.extra_fields
+    # Loop through STAC Assets (bands)
+    assets: list[pystac.Asset] = [item.assets[band] for band in bands]
+    # Get some metadata from first STAC Asset
+    asset: pystac.Asset = assets[0]
+    metadata: dict[str, Any] = asset.extra_fields
 
+    async with asyncio.TaskGroup() as task_group:
+        tasks_open: list[asyncio.Task] = [
+            task_group.create_task(
+                coro=open_tiff(tiff_url=asset.href, skip_signature=True),
+                name=asset.extra_fields["eo:bands"][0]["name"],
+            )
+            for asset in assets
+        ]
+
+    # Get list of all TIFFs, i.e. different Sentinel-2 bands
+    tiffs: list[async_tiff.TIFF] = await asyncio.gather(*tasks_open)
+
+    # Retrieve some metadata about tiles in the first band TIFF
+    ifd: async_tiff.ImageFileDirectory = tiffs[0].ifds[0]  # full-resolution IFD
+    tile_width: int = ifd.tile_width
+    tile_height: int = ifd.tile_height
+    x_count: int = math.ceil(ifd.image_width / tile_width)
+    y_count: int = math.ceil(ifd.image_height / tile_height)
+    # Get cartesian product of x and y tile ids
+    xy_ranges = itertools.product(range(x_count), range(y_count))
+
+    # Decode tiles one by one, gathering all bands per tile at once
+    for x_index, y_index in xy_ranges:  # Loop through GeoTIFF tiles
+        # Fetch all bands belonging to the same tile index
         async with asyncio.TaskGroup() as task_group:
-            tasks_open: list[asyncio.Task] = [
+            tasks_fetch: list[asyncio.Task] = [
                 task_group.create_task(
-                    coro=open_tiff(tiff_url=asset.href, skip_signature=True),
-                    name=asset.extra_fields["eo:bands"][0]["name"],
+                    coro=fetch_tile(tiff=tiff, x_index=x_index, y_index=y_index, z_index=0)
                 )
-                for asset in assets
+                for tiff in tiffs
             ]
+        tiles: list[async_tiff.Tile] = await asyncio.gather(*tasks_fetch)
 
-        # Get list of all TIFFs, i.e. different Sentinel-2 bands
-        tiffs: list[async_tiff.TIFF] = await asyncio.gather(*tasks_open)
-
-        # Retrieve some metadata about tiles in the first band TIFF
-        ifd: async_tiff.ImageFileDirectory = tiffs[0].ifds[0]  # full-resolution IFD
-        tile_width: int = ifd.tile_width  # ty: ignore[invalid-assignment]
-        tile_height: int = ifd.tile_height  # ty: ignore[invalid-assignment]
-        x_count: int = math.ceil(ifd.image_width / tile_width)
-        y_count: int = math.ceil(ifd.image_height / tile_height)
-        # Get cartesian product of x and y tile ids
-        xy_ranges = itertools.product(range(x_count), range(y_count))
-
-        # Decode tiles one by one, gathering all bands per tile at once
-        for x_index, y_index in xy_ranges:  # Loop through GeoTIFF tiles
-            # Fetch all bands belonging to the same tile index
-            async with asyncio.TaskGroup() as task_group:
-                tasks_fetch: list[asyncio.Task] = [
-                    task_group.create_task(
-                        coro=fetch_tile(tiff=tiff, x_index=x_index, y_index=y_index, z_index=0)
+        # Decode all tiles across different bands
+        dtype = getattr(torch, metadata["raster:bands"][0]["data_type"])
+        async with asyncio.TaskGroup() as task_group:
+            tasks_decode: list[asyncio.Task] = []
+            for idx, tile in enumerate(tiles):
+                ifd = tiffs[idx].ifds[0]
+                task = task_group.create_task(
+                    coro=decode_tile_to_tensor(
+                        tile=tile,
+                        tile_height=ifd.tile_height,
+                        tile_width=ifd.tile_width,
+                        dtype=dtype,
                     )
-                    for tiff in tiffs
-                ]
-            tiles: list[async_tiff.Tile] = await asyncio.gather(*tasks_fetch)
+                )
+                tasks_decode.append(task)
 
-            # Decode all tiles across different bands
-            dtype = getattr(torch, metadata["raster:bands"][0]["data_type"])
-            async with asyncio.TaskGroup() as task_group:
-                tasks_decode: list[asyncio.Task] = []
-                for idx, tile in enumerate(tiles):
-                    ifd = tiffs[idx].ifds[0]
-                    task = task_group.create_task(
-                        coro=decode_tile_to_tensor(
-                            tile=tile,
-                            tile_height=ifd.tile_height,
-                            tile_width=ifd.tile_width,
-                            dtype=dtype,
-                        )
-                    )
-                    tasks_decode.append(task)
+        tensors: list[torch.Tensor] = await asyncio.gather(*tasks_decode)
 
-            tensors: list[torch.Tensor] = await asyncio.gather(*tasks_decode)
+        # Prepare xarray data variables, with same 10m spatial resolution per band
+        data_vars: dict[str, tuple[tuple, torch.Tensor]] = {}
+        dims = ("x", "y", "time")
+        for band, tensor in zip(bands, tensors, strict=True):
+            tensor_ = tensor.permute(1, 0, 2)  # HWC -> WHC or XYT
+            if tensor_.size() != (tile_width, tile_height, 1):
+                continue  # TODO: resample 20m bands to 10m using nearest neighbour
+            data_vars[band] = (dims, tensor_)
 
-            # Prepare xarray data variables, with same 10m spatial resolution per band
-            data_vars: dict[str, tuple[tuple, torch.Tensor]] = {}
-            dims = ("x", "y", "time")
-            for band, tensor in zip(bands, tensors, strict=True):
-                tensor_ = tensor.permute(1, 0, 2)  # HWC -> WHC or XYT
-                if tensor_.size() != (tile_width, tile_height, 1):
-                    continue  # TODO: resample 20m bands to 10m using nearest neighbour
-                data_vars[band] = (dims, tensor_)
+        # Raster coordinates from first band (assume all the same)
+        width, height = metadata["proj:shape"]
+        raster_index = RasterIndex.from_stac_proj_metadata(
+            metadata=metadata, width=width, height=height
+        )
+        # Get local Affine transformation for the tile
+        tile_affine_transform = raster_index.transform() * Affine.translation(
+            xoff=x_index * ifd.tile_height, yoff=y_index * ifd.tile_width
+        )
+        tile_index = RasterIndex.from_transform(
+            affine=tile_affine_transform,
+            width=tile_width,
+            height=tile_height,
+            crs=item.properties["proj:code"],
+        )
 
-            # Raster coordinates from first band (assume all the same)
-            width, height = metadata["proj:shape"]
-            raster_index = RasterIndex.from_stac_proj_metadata(
-                metadata=metadata, width=width, height=height
-            )
-            # Get local Affine transformation for the tile
-            tile_affine_transform = raster_index.transform() * Affine.translation(
-                xoff=x_index * ifd.tile_height, yoff=y_index * ifd.tile_width
-            )
-            tile_index = RasterIndex.from_transform(
-                affine=tile_affine_transform,
-                width=tile_width,
-                height=tile_height,
-                crs=item.properties["proj:code"],
-            )
-
-            # Build xarray.Dataset for multiple bands captured at one timestep
-            ds_tile = xr.Dataset(
-                data_vars=data_vars,
-                coords=xr.Coordinates.from_xindex(index=tile_index).assign(
-                    time=[np.datetime64(item.properties["datetime"], "ns")]
-                ),
-            ).transpose("time", "y", "x")
-            # ds_tile.blue.isel(time=0).plot.imshow()
-            break
+        # Build xarray.Dataset for multiple bands captured at one timestep
+        ds_tile = xr.Dataset(
+            data_vars=data_vars,
+            coords=xr.Coordinates.from_xindex(index=tile_index).assign(
+                time=[np.datetime64(item.properties["datetime"], "ns")]
+            ),
+        ).transpose("time", "y", "x")
+        # ds_tile.blue.isel(time=0).plot.imshow()
+        break
 
     return ds_tile
