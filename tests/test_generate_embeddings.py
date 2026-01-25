@@ -30,7 +30,9 @@ def sample_s2_dataset():
 
     y = np.arange(0, y_size * 10, 10)
     x = np.arange(0, x_size * 10, 10)
-    time = np.arange("2023-01-15", "2024-01-15", dtype="datetime64[M]")[:n_times]
+    time = np.arange(
+        np.datetime64("2023-01-15"), np.datetime64("2024-01-15"), dtype="datetime64[M]"
+    )[:n_times]
 
     data_vars = {}
     for band in bands:

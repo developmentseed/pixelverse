@@ -21,7 +21,8 @@ classifiers = [
 
 dependencies = [
   "einops>=0.8.1",
-  "numpy>=2.3.4",
+  "interpn[pydantic]>=0.11",
+  "numpy>=2.4",
   "odc-stac>=0.4",
   "pystac>=1.14.1",
   "pystac-client>=0.9",
