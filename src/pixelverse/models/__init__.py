@@ -1,4 +1,11 @@
 from pixelverse.models.registry import create_model, get_weights, list_models
 from pixelverse.models.tessera import Tessera
+from pixelverse.models.transforms import PixelTimeSeriesNormalize
 
-__all__ = ["list_models", "create_model", "get_weights", "Tessera"]
+__all__ = [
+    "PixelTimeSeriesNormalize",
+    "Tessera",
+    "create_model",
+    "get_weights",
+    "list_models",
+]
