@@ -1210,11 +1210,11 @@ requires-dist = [
     { name = "async-tiff", specifier = ">=0.3" },
     { name = "einops", specifier = ">=0.8.1" },
     { name = "interpn", extras = ["pydantic"], specifier = ">=0.11" },
-    { name = "numpy", specifier = ">=2.4.0" },
+    { name = "numpy", specifier = ">=2.4" },
     { name = "odc-stac", specifier = ">=0.4" },
     { name = "pystac", specifier = ">=1.14.1" },
     { name = "pystac-client", specifier = ">=0.9" },
-    { name = "rasterix", git = "https://github.com/xarray-contrib/rasterix?rev=v0.1" },
+    { name = "rasterix", specifier = ">=0.1.1" },
     { name = "rioxarray", specifier = ">=0.20" },
     { name = "torch", specifier = ">=2.9" },
     { name = "torchvision", specifier = ">=0.24" },
@@ -1675,14 +1675,18 @@ wheels = [
 
 [[package]]
 name = "rasterix"
-version = "0.1"
-source = { git = "https://github.com/xarray-contrib/rasterix?rev=v0.1#9775450ee7560a2ded56d787bf75a9cffa1c73b0" }
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "affine" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "xarray" },
     { name = "xproj" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9f/2b/02bff2dd51b1b33de973ec7d059ae0dcf8a1d1acb68e17496541b387dabd/rasterix-0.1.1.tar.gz", hash = "sha256:1217680060debff75a11561818ca7b89f23818dff149aa3e5b6b0327b844f354", size = 75908, upload-time = "2026-01-23T23:11:19.372Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/12/088d1e3d4e992a2baf816e0eefe6c6868c14a9310825976f49865f45e66b/rasterix-0.1.1-py3-none-any.whl", hash = "sha256:c2fef1d23cc8fcfe3ed8d67cf879ee6ec9be4da8be71bba9e65066e457792ad2", size = 39798, upload-time = "2026-01-23T23:11:18.162Z" },
 ]
 
 [[package]]

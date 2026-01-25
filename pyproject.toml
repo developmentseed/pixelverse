@@ -27,7 +27,7 @@ dependencies = [
   "odc-stac>=0.4",
   "pystac>=1.14.1",
   "pystac-client>=0.9",
-  "rasterix>=0.1a4",
+  "rasterix>=0.1.1",
   "rioxarray>=0.20",
   "torch>=2.9",
   "torchvision>=0.24",
@@ -48,9 +48,6 @@ dev = [
   "ruff>=0.14.1",
   "ty>=0.0.11",
 ]
-
-[tool.uv.sources]
-rasterix = { git = "https://github.com/xarray-contrib/rasterix", rev = "v0.1" }
 
 [tool.ruff]
 target-version = "py313"
