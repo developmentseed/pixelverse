@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import pystac
 import pytest
-import torch
 import xarray as xr
 from async_tiff import TIFF
 
@@ -76,10 +75,10 @@ async def test_fetch_and_decode_tile():
 
     tile = await fetch_tile(tiff=tiff, x_index=0, y_index=0, z_index=0)
     tensor = await decode_tile_to_tensor(
-        tile=tile, tile_height=1024, tile_width=1024, dtype=torch.uint16
+        tile=tile, tile_height=1024, tile_width=1024, dtype=np.uint16
     )
     assert tensor.shape == (1024, 1024, 1)  # HWC
-    assert tensor.dtype == torch.uint16
+    assert tensor.dtype == np.uint16
 
 
 def test_interpolate_2d():

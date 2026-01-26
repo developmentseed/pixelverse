@@ -15,7 +15,6 @@ import async_tiff
 import interpn
 import numpy as np
 import pystac
-import torch
 import xarray as xr
 from affine import Affine
 from rasterix import RasterIndex
@@ -74,8 +73,8 @@ async def decode_tile_to_tensor(
     tile,  #: async_tiff.Tile,
     tile_height: int,
     tile_width: int,
-    dtype: torch.dtype = torch.uint16,
-) -> torch.Tensor:
+    dtype: np.typing.DTypeLike = np.uint16,
+) -> np.ndarray:
     """
     Decode a TIFF tile for a single band into a 3-D tensor.
 
@@ -87,17 +86,17 @@ async def decode_tile_to_tensor(
         Height of the tile in pixels.
     tile_width : int
         Width of the tile in pixels.
-    dtype : torch.dtype
-        Data type of the tile. Default is torch.uint16.
+    dtype : np.typing.DTypeLike
+        Data type of the tile. Default is np.uint16.
 
     Returns
     -------
-    torch.Tensor
+    np.ndarray
         Tile of shape (Height, Width, Channel).
 
     """
     decoded_bytes = await tile.decode_async()
-    tensor: torch.Tensor = torch.frombuffer(buffer=decoded_bytes, dtype=dtype)
+    tensor: np.ndarray = np.frombuffer(buffer=decoded_bytes, dtype=dtype)
     tensor = tensor.reshape(tile_height, tile_width, 1)
     return tensor
 
@@ -230,7 +229,7 @@ async def stac_to_xarray(
         tiles: list[async_tiff.Tile] = await asyncio.gather(*tasks_fetch)
 
         # Decode all tiles across different bands
-        dtype = getattr(torch, metadata["raster:bands"][0]["data_type"])
+        dtype = np.dtype(metadata["raster:bands"][0]["data_type"])
         async with asyncio.TaskGroup() as task_group:
             tasks_decode: list[asyncio.Task] = []
             for idx, tile in enumerate(tiles):
@@ -245,19 +244,19 @@ async def stac_to_xarray(
                 )
                 tasks_decode.append(task)
 
-        tensors: list[torch.Tensor] = await asyncio.gather(*tasks_decode)
+        tensors: list[np.ndarray] = await asyncio.gather(*tasks_decode)
 
         # Prepare xarray data variables, with same 10m spatial resolution per band
-        data_vars: dict[str, tuple[tuple, torch.Tensor]] = {}
+        data_vars: dict[str, tuple[tuple, np.ndarray]] = {}
         dims = ("x", "y", "time")
         for band, tensor in zip(bands, tensors, strict=True):
-            if tensor.size() != (tile_height, tile_width, 1):
+            if tensor.shape != (tile_height, tile_width, 1):
                 arr: np.ndarray = interpolate_2d(
-                    in_arr=tensor.squeeze(dim=-1).numpy(),  # HWC -> HW
+                    in_arr=tensor.squeeze(axis=-1),  # HWC -> HW
                     output_shape=(tile_height, tile_width),
                 )
-                tensor = torch.from_numpy(arr).unsqueeze(dim=-1)  # HWC
-            tensor_ = tensor.permute(1, 0, 2)  # HWC -> WHC or XYT
+                tensor = np.expand_dims(a=arr, axis=-1)  # HW -> HWC
+            tensor_ = np.permute_dims(a=tensor, axes=(1, 0, 2))  # HWC -> WHC or XYT
             data_vars[band] = (dims, tensor_)
 
         # Raster coordinates from first band (assume all the same)
