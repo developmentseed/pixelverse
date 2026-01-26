@@ -8,6 +8,7 @@ import asyncio
 import itertools
 import math
 from collections.abc import Sequence
+from types import AsyncGeneratorType
 from typing import Any, Literal
 from urllib.parse import urlparse
 
@@ -152,7 +153,7 @@ def interpolate_2d(
     return out.astype(in_arr.dtype, casting="same_value")
 
 
-async def stac_to_xarray(
+async def stac_to_tiles(
     item: pystac.Item,
     # bbox, chunks
     bands: Sequence[str] = (
@@ -168,11 +169,13 @@ async def stac_to_xarray(
         "swir22",
     ),
     # resolution, dtype, nodata
-) -> xr.Dataset:
+) -> AsyncGeneratorType[xr.Dataset]:
     """
-    Read a STAC Item into an xarray.Dataset.
+    Read a STAC Item into an xarray.Dataset tile by tile.
 
-    Partial re-implementation of odc.stac.load using async-tiff and rasterix.
+    Partial re-implementation of odc.stac.load using async-tiff and rasterix. Instead of
+    returning the entire image from a Cloud-optimized GeoTIFF, this generator function
+    yields tiles (subsets of the image) based on the GeoTIFF's internal tiling scheme.
 
     Parameters
     ----------
@@ -182,10 +185,10 @@ async def stac_to_xarray(
         List of satellite band names to read from the STAC Item's assets. Default is
         the Sentinel-2 10m and 20m spatial resolution bands.
 
-    Returns
-    -------
+    Yields
+    ------
     xr.Dataset
-        An xarray.Dataset containing the pixel data per band as data_variables, and
+        An xarray.Dataset tile containing the pixel data per band as data_variables, and
         each band stacked in the shape of (time, height, width).
 
     """
@@ -283,6 +286,5 @@ async def stac_to_xarray(
             ),
         ).transpose("time", "y", "x")
         # ds_tile.blue.isel(time=0).plot.imshow()
-        break
 
-    return ds_tile
+        yield ds_tile

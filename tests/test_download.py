@@ -2,6 +2,8 @@
 Tests for downloading Sentinel-1 and Sentinel-2 imagery.
 """
 
+from types import AsyncGeneratorType
+
 import affine
 import async_tiff
 import numpy as np
@@ -16,7 +18,7 @@ from pixelverse.download import (
     fetch_tile,
     interpolate_2d,
     open_tiff,
-    stac_to_xarray,
+    stac_to_tiles,
 )
 
 
@@ -104,11 +106,14 @@ def test_interpolate_2d():
     )
 
 
-async def test_stac_to_xarray(stac_item):
+async def test_stac_to_tiles(stac_item):
     """
-    Test opening a STAC Item produces an xarray.Dataset tile.
+    Test opening a STAC Item produces xarray.Dataset tiles.
     """
-    ds: xr.Dataset = await stac_to_xarray(item=stac_item)
+    tilegen: AsyncGeneratorType[xr.Dataset] = stac_to_tiles(item=stac_item)
+
+    # Yield first tile
+    ds: xr.Dataset = await anext(tilegen)
     assert tuple(ds.data_vars.keys()) == (
         "blue",
         "green",
@@ -138,3 +143,7 @@ async def test_stac_to_xarray(stac_item):
         ds.isel(x=-1, y=-1, time=0).to_array().data,  # bottom right corner
         [1273, 1254, 1125, 1144, 1124, 1114, 1111, 1111, 1091, 1070],
     )
+
+    # Yield second tile
+    tile = await anext(tilegen)
+    assert isinstance(tile, xr.Dataset)

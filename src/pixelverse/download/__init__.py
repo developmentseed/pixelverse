@@ -3,7 +3,7 @@ from pixelverse.download.stac_to_xr import (
     fetch_tile,
     interpolate_2d,
     open_tiff,
-    stac_to_xarray,
+    stac_to_tiles,
 )
 
 __all__ = [
@@ -11,5 +11,5 @@ __all__ = [
     "fetch_tile",
     "interpolate_2d",
     "open_tiff",
-    "stac_to_xarray",
+    "stac_to_tiles",
 ]
