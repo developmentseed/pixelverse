@@ -133,6 +133,8 @@ async def test_stac_to_tiles(stac_item):
         a=10.0, b=0.0, c=399960.0, d=0.0, e=-10.0, f=9900040.0
     )
     assert ds.xindexes["time"].index[0] == pd.Timestamp("2021-04-14 08:20:24.721000")  # ty:ignore[unresolved-attribute]
+    assert ds.attrs["s2:processing_baseline"] == "05.00"
+    assert ds.attrs["grid:code"] == "MGRS-36MVD"
 
     # Check four corner pixel values (ensure no accidental rotations in resampling)
     np.testing.assert_equal(

@@ -284,6 +284,7 @@ async def stac_to_tiles(
             coords=xr.Coordinates.from_xindex(index=tile_index).assign(
                 time=[np.datetime64(item.properties["datetime"], "ns")]
             ),
+            attrs=item.properties,  # STAC item properties
         ).transpose("time", "y", "x")
         # ds_tile.blue.isel(time=0).plot.imshow()
 
