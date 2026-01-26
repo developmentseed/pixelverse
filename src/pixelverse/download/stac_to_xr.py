@@ -251,9 +251,13 @@ async def stac_to_xarray(
         data_vars: dict[str, tuple[tuple, torch.Tensor]] = {}
         dims = ("x", "y", "time")
         for band, tensor in zip(bands, tensors, strict=True):
+            if tensor.size() != (tile_height, tile_width, 1):
+                arr: np.ndarray = interpolate_2d(
+                    in_arr=tensor.squeeze(dim=-1).numpy(),  # HWC -> HW
+                    output_shape=(tile_height, tile_width),
+                )
+                tensor = torch.from_numpy(arr).unsqueeze(dim=-1)  # HWC
             tensor_ = tensor.permute(1, 0, 2)  # HWC -> WHC or XYT
-            if tensor_.size() != (tile_width, tile_height, 1):
-                continue  # TODO: resample 20m bands to 10m using nearest neighbour
             data_vars[band] = (dims, tensor_)
 
         # Raster coordinates from first band (assume all the same)

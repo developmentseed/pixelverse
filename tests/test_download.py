@@ -110,18 +110,18 @@ async def test_stac_to_xarray(stac_item):
     Test opening a STAC Item produces an xarray.Dataset tile.
     """
     ds: xr.Dataset = await stac_to_xarray(item=stac_item)
-    # assert tuple(ds.data_vars.keys()) == (
-    #     "blue",
-    #     "green",
-    #     "red",
-    #     "rededge1",
-    #     "rededge2",
-    #     "rededge3",
-    #     "nir",
-    #     "nir08",
-    #     "swir16",
-    #     "swir22",
-    # )
+    assert tuple(ds.data_vars.keys()) == (
+        "blue",
+        "green",
+        "red",
+        "rededge1",
+        "rededge2",
+        "rededge3",
+        "nir",
+        "nir08",
+        "swir16",
+        "swir22",
+    )
     assert ds.sizes == {"x": 1024, "y": 1024, "time": 1}
     assert set(ds.dtypes.values()) == {np.dtypes.UInt16DType()}
     assert ds.xindexes["x"].crs == "EPSG:32736"  # ty:ignore[unresolved-attribute]
@@ -129,3 +129,13 @@ async def test_stac_to_xarray(stac_item):
         a=10.0, b=0.0, c=399960.0, d=0.0, e=-10.0, f=9900040.0
     )
     assert ds.xindexes["time"].index[0] == pd.Timestamp("2021-04-14 08:20:24.721000")  # ty:ignore[unresolved-attribute]
+
+    # Check four corner pixel values (ensure no accidental rotations in resampling)
+    np.testing.assert_equal(
+        ds.isel(x=0, y=0, time=0).to_array().data,  # top left corner
+        [1876, 1820, 1800, 1879, 1782, 1678, 1818, 1600, 1761, 1634],
+    )
+    np.testing.assert_equal(
+        ds.isel(x=-1, y=-1, time=0).to_array().data,  # bottom right corner
+        [1273, 1254, 1125, 1144, 1124, 1114, 1111, 1111, 1091, 1070],
+    )
