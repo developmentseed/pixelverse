@@ -11,7 +11,7 @@ import pandas as pd
 import pystac
 import pytest
 import xarray as xr
-from async_tiff import TIFF
+from async_tiff import TIFF, store
 
 from pixelverse.download import (
     decode_tile_to_tensor,
@@ -69,16 +69,14 @@ async def test_fetch_and_decode_tile():
     Test fetching compressed bytes for a single GeoTIFF Tile, and decoding it into a
     torch.Tensor with shape (Height, Width, Channels).
     """
-    store = async_tiff.store.S3Store(
+    store_ = store.S3Store(
         "e84-earth-search-sentinel-data", region="us-west-2", skip_signature=True
     )
     path = "sentinel-2-c1-l2a/36/N/XF/2021/12/S2B_T36NXF_20211212T080506_L2A/B04.tif"
-    tiff = await async_tiff.TIFF.open(path=path, store=store)
+    tiff = await async_tiff.TIFF.open(path=path, store=store_)
 
     tile = await fetch_tile(tiff=tiff, x_index=0, y_index=0, z_index=0)
-    tensor = await decode_tile_to_tensor(
-        tile=tile, tile_height=1024, tile_width=1024, dtype=np.uint16
-    )
+    tensor = await decode_tile_to_tensor(tile=tile)
     assert tensor.shape == (1024, 1024, 1)  # HWC
     assert tensor.dtype == np.uint16
 

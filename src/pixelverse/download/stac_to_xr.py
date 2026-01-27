@@ -18,6 +18,7 @@ import numpy as np
 import pystac
 import xarray as xr
 from affine import Affine
+from async_tiff import store
 from rasterix import RasterIndex
 
 
@@ -41,8 +42,8 @@ async def open_tiff(tiff_url: str, **kwargs) -> async_tiff.TIFF:
     """
     # Open GeoTIFF file
     url = urlparse(url=tiff_url)
-    store = async_tiff.store.from_url(url=f"{url.scheme}://{url.hostname}", **kwargs)
-    tiff = await async_tiff.TIFF.open(path=url.path, store=store)
+    store_ = store.from_url(url=f"{url.scheme}://{url.hostname}", **kwargs)
+    tiff = await async_tiff.TIFF.open(path=url.path, store=store_)
     return tiff
 
 
@@ -70,12 +71,7 @@ async def fetch_tile(tiff: async_tiff.TIFF, x_index: int, y_index: int, z_index:
     return await tiff.fetch_tile(x=x_index, y=y_index, z=z_index)
 
 
-async def decode_tile_to_tensor(
-    tile,  #: async_tiff.Tile,
-    tile_height: int,
-    tile_width: int,
-    dtype: np.typing.DTypeLike = np.uint16,
-) -> np.ndarray:
+async def decode_tile_to_tensor(tile: async_tiff.Tile) -> np.ndarray:
     """
     Decode a TIFF tile for a single band into a 3-D tensor.
 
@@ -83,12 +79,6 @@ async def decode_tile_to_tensor(
     ----------
     tile : async_tiff.Tile
         Tile containing compressed bytes.
-    tile_height : int
-        Height of the tile in pixels.
-    tile_width : int
-        Width of the tile in pixels.
-    dtype : np.typing.DTypeLike
-        Data type of the tile. Default is np.uint16.
 
     Returns
     -------
@@ -96,9 +86,8 @@ async def decode_tile_to_tensor(
         Tile of shape (Height, Width, Channel).
 
     """
-    decoded_bytes = await tile.decode_async()
-    tensor: np.ndarray = np.frombuffer(buffer=decoded_bytes, dtype=dtype)
-    tensor = tensor.reshape(tile_height, tile_width, 1)
+    decoded_array: async_tiff.Array = await tile.decode()
+    tensor: np.ndarray = np.asarray(a=decoded_array)
     return tensor
 
 
@@ -232,19 +221,11 @@ async def stac_to_tiles(
         tiles: list[async_tiff.Tile] = await asyncio.gather(*tasks_fetch)
 
         # Decode all tiles across different bands
-        dtype = np.dtype(metadata["raster:bands"][0]["data_type"])
         async with asyncio.TaskGroup() as task_group:
             tasks_decode: list[asyncio.Task] = []
             for idx, tile in enumerate(tiles):
                 ifd = tiffs[idx].ifds[0]
-                task = task_group.create_task(
-                    coro=decode_tile_to_tensor(
-                        tile=tile,
-                        tile_height=ifd.tile_height,
-                        tile_width=ifd.tile_width,
-                        dtype=dtype,
-                    )
-                )
+                task = task_group.create_task(coro=decode_tile_to_tensor(tile=tile))
                 tasks_decode.append(task)
 
         tensors: list[np.ndarray] = await asyncio.gather(*tasks_decode)
