@@ -67,7 +67,7 @@ async def test_open_tiff():
 async def test_fetch_and_decode_tile():
     """
     Test fetching compressed bytes for a single GeoTIFF Tile, and decoding it into a
-    torch.Tensor with shape (Height, Width, Channels).
+    np.ndarray with shape (Height, Width, Channels).
     """
     store_ = store.S3Store(
         "e84-earth-search-sentinel-data", region="us-west-2", skip_signature=True
@@ -83,7 +83,8 @@ async def test_fetch_and_decode_tile():
 
 def test_interpolate_2d():
     """
-    Test interpolating a 2-D array using nearest neighbour into a higher spatial resolution.
+    Test interpolating a 2-D array using nearest neighbour into a higher spatial
+    resolution.
     """
     in_arr = np.arange(12, dtype=np.uint16).reshape(3, 4)
     out_arr = interpolate_2d(in_arr=in_arr, output_shape=(6, 8), method="nearest")
