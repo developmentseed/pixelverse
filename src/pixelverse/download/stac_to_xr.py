@@ -267,6 +267,5 @@ async def stac_to_tiles(
             ),
             attrs=item.properties,  # STAC item properties
         ).transpose("time", "y", "x")
-        # ds_tile.blue.isel(time=0).plot.imshow()
 
         yield ds_tile
