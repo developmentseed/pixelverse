@@ -1,3 +1,7 @@
+"""
+Retrieve and process Sentinel-2 Collection 1 Level 2A multispectral data.
+"""
+
 from collections import defaultdict
 
 import pandas as pd
@@ -6,13 +10,14 @@ from odc.stac import stac_load
 from pystac_client import Client
 
 
-def get_s2_times_series(
+def get_s2_time_series(
     bbox: tuple[int | float, int | float, int | float, int | float],
     year: int,
     stac_host: str = "https://earth-search.aws.element84.com/v1",
     cloudcover_max: int = 20,
 ) -> xr.Dataset:
-    """Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
+    """
+    Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
 
     Parameters
     ----------
@@ -104,13 +109,14 @@ def get_s2_times_series(
 
 
 def fill_missing_months_and_format(dset: xr.Dataset) -> xr.Dataset:
-    """Fill missing months in the time series by forward filling previous data.
+    """
+    Fill missing months in the time series by forward filling previous data.
 
     Parameters
     ----------
     dset : xr.Dataset
         Input xarray Dataset with a time dimension representing months.
-        Expected to be the output of `get_s2_times_series`.
+        Expected to be the output of `get_s2_time_series`.
 
     Returns
     -------

@@ -278,6 +278,36 @@ repo = "fontawesome/brands/github"
 # ----------------------------------------------------------------------------
 # The "extra" section contains miscellaneous settings.
 # ----------------------------------------------------------------------------
-#[[project.extra.social]]
-#icon = "fontawesome/brands/github"
-#link = "https://github.com/user/repo"
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/developmentseed"
+
+# ----------------------------------------------------------------------------
+# The "extensions" and "plugins" sections contains even more settings.
+# ----------------------------------------------------------------------------
+
+[project.plugins.mkdocstrings.handlers.python]
+inventories = [
+    "https://docs.python.org/3/objects.inv",
+    "https://docs.xarray.dev/en/stable/objects.inv"
+]
+paths = ["src/pixelverse"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+# General
+show_source = true
+# Heading
+heading_level = 3
+show_root_heading = true
+show_symbol_type_heading = true
+show_symbol_type_toc = true
+# Members
+inherited_members = true
+# Docstrings
+docstring_style = "numpy"
+docstring_section_style = "table"
+# Signatures
+annotations_path = "full"
+separate_signature = true
+signature_crossrefs = true
+show_signature_annotations = true
