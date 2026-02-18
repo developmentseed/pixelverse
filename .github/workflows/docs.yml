@@ -32,7 +32,7 @@ jobs:
           python-version: 3.x
 
       - name: Install Zensical
-        run: pip install zensical
+        run: pip install mkdocstrings-python zensical
 
       - name: Build HTML Assets
         run: zensical build --clean
