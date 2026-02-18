@@ -5,13 +5,11 @@ import xarray as xr
 from odc.stac import stac_load
 from pystac_client import Client
 
-EARTHSEARCH_URL = "https://earth-search.aws.element84.com/v1"
-
 
 def get_s2_times_series(
-    bbox: tuple[float],
+    bbox: tuple[int | float, int | float, int | float, int | float],
     year: int,
-    stac_host: str = EARTHSEARCH_URL,
+    stac_host: str = "https://earth-search.aws.element84.com/v1",
     cloudcover_max: int = 20,
 ) -> xr.Dataset:
     """Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
@@ -78,7 +76,7 @@ def get_s2_times_series(
     # Load the selected items into an xarray dataset
     dset = stac_load(
         selected_items,
-        bbox=bbox,  # type: ignore[invalid-argument-type]
+        bbox=bbox,
         chunks={"time": 1, "x": 2048, "y": 2048},
         bands=[
             "blue",
@@ -125,7 +123,7 @@ def fill_missing_months_and_format(dset: xr.Dataset) -> xr.Dataset:
 
     existing_times = pd.DatetimeIndex(dset.time.values)
 
-    missing_months = sorted(set(range(1, 13)) - set(existing_times.month))  # type: ignore[unresolved-attribute]
+    missing_months = sorted(set(range(1, 13)) - set(existing_times.month))
 
     new_dates = pd.DatetimeIndex(
         [

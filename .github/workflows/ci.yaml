@@ -26,5 +26,5 @@ jobs:
         with:
             enable-cache: true
             python-version: 3.13
-      - name: pre-commit
-        run: uv run --all-extras --dev pre-commit run --all-files -v
+      - name: Run prek
+        run: uv run --all-extras --dev prek run --all-files -v

@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+import pixelverse as pv
 from pixelverse.generate_embeddings import generate_embeddings, quantize_embeddings
 
 
@@ -29,7 +30,9 @@ def sample_s2_dataset():
 
     y = np.arange(0, y_size * 10, 10)
     x = np.arange(0, x_size * 10, 10)
-    time = np.arange("2023-01-15", "2024-01-15", dtype="datetime64[M]")[:n_times]
+    time = np.arange(
+        np.datetime64("2023-01-15"), np.datetime64("2024-01-15"), dtype="datetime64[M]"
+    )[:n_times]
 
     data_vars = {}
     for band in bands:
@@ -102,12 +105,22 @@ def test_quantize_embeddings_attributes(sample_s2_dataset):
     assert result.attrs.get("quantized")
 
 
-def test_quantize_full_pipeline(sample_s2_dataset):
-    """Test full pipeline: generate embeddings -> quantize."""
-    # Generate
-    embeddings_ds = generate_embeddings(sample_s2_dataset)
+def test_quantize_full_pipeline(sample_s2_dataset, mocker):
+    """
+    Integration test for full embedding generation pipeline.
 
-    # Quantize
+    1. Generate embeddings: Pass through normalization transform and model encoder
+    2. Embedding quantization: from float32 to uint8 dtype
+    """
+    # Generate embeddings
+    spy_transform = mocker.spy(pv.models.transforms.PixelTimeSeriesNormalize, "forward")
+    spy_encoder = mocker.spy(pv.models.tessera.TransformerEncoder, "forward")
+    embeddings_ds = generate_embeddings(sample_s2_dataset)
+    assert embeddings_ds.embedding.dtype == np.float32
+    assert spy_transform.call_count == 1  # ensure norm transform called exactly once
+    assert spy_encoder.call_count == 1  # ensure model encoder called exactly once
+
+    # Quantize embeddings
     quantized_ds = quantize_embeddings(embeddings_ds.embedding)
 
     # Verify full pipeline

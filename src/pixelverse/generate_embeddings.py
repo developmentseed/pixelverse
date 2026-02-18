@@ -36,9 +36,10 @@ def generate_embeddings(s2_dset: xr.Dataset, model_name: str = "tessera_s2_encod
     -------
     xr.Dataset
         Dataset containing generated embeddings with spatial coordinates and CRS information.
+
     """
-    model = create_model(model_name, pretrained=True)
-    model[0].eval()
+    model, transforms = create_model(model_name, pretrained=True)
+    model.eval()
 
     # add day of year variable if not present
     if "doy" not in s2_dset:
@@ -63,7 +64,7 @@ def generate_embeddings(s2_dset: xr.Dataset, model_name: str = "tessera_s2_encod
 
     # Run through model
     with torch.no_grad():
-        embeddings = model[0](x)
+        embeddings = model(transforms(x))
 
     # Convert back to xarray with spatial structure
     dset_embeddings = (
