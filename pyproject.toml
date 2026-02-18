@@ -138,5 +138,12 @@ checks = [
   "RT03",
 ]
 
+[tool.rumdl]
+line-length = 88
+flavor = "mkdocs"
+
+[tool.rumdl.per-file-ignores]
+"README.md" = [ "MD033" ] # Allow HTML in README
+
 [tool.typos.default.extend-words]
 inpt = "inpt"
