@@ -288,8 +288,9 @@ link = "https://github.com/developmentseed"
 
 [project.plugins.mkdocstrings.handlers.python]
 inventories = [
+    "https://corteva.github.io/rioxarray/latest/objects.inv",
     "https://docs.python.org/3/objects.inv",
-    "https://docs.xarray.dev/en/stable/objects.inv"
+    "https://docs.xarray.dev/en/latest/objects.inv",
 ]
 paths = ["src/pixelverse"]
 

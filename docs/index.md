@@ -33,7 +33,7 @@ s2_dset
 ### Generate embeddings
 
 Use [`generate_embeddings`][pixelverse.generate_embeddings.generate_embeddings] to
-create embeddings, e.g. using the Tessera Model.
+create embeddings, e.g. with the Tessera Model:
 
 ```python
 embeddings: xr.Dataset = generate_embeddings(
@@ -46,7 +46,7 @@ embeddings
 ### (Optional) Quantize embeddings
 
 Use [`quantize_embeddings`][pixelverse.generate_embeddings.quantize_embeddings] to
-convert from float32 to uint8 and save disk space.
+convert from float32 to int8 and save disk space.
 
 ```python
 embeddings_quantized: xr.Dataset = quantize_embeddings(embeddings=embeddings)
