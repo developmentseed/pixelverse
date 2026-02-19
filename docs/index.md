@@ -40,7 +40,6 @@ embeddings: xr.Dataset = generate_embeddings(
     s2_dset=s2_dset,
     model_name="tessera_s2_encoder",
 )
-embeddings
 ```
 
 ### (Optional) Quantize embeddings

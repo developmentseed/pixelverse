@@ -10,12 +10,13 @@
 site_name = "Pixelverse"
 site_description = "Cloud Native Tooling to generate and process pixelwise geospatial embeddings."
 site_author = "Development Seed"
-site_url = "https://developmentseed.org/pixelverse/"
 repo_name = "developmentseed/pixelverse"
 repo_url = "https://github.com/developmentseed/pixelverse/"
+site_url = "https://developmentseed.org/pixelverse/"
+edit_uri = "edit/main/docs/"
 nav = [
   { "Home" = "index.md" },
-  { "API Reference" = "apiref.md" },
+  { "API Reference" = "api.md" },
 ]
 
 # ----------------------------------------------------------------------------
