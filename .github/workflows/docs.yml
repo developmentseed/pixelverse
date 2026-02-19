@@ -1,9 +1,10 @@
 name: Documentation
 on:
   # Uncomment the 'pull_request' line below to manually re-build Jupyter Book
-  pull_request:
+  # pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
