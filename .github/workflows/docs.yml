@@ -26,16 +26,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
-          python-version: 3.x
-
-      - name: Install Zensical
-        run: pip install mkdocstrings-python zensical
+          enable-cache: true
+          python-version: 3.13
 
       - name: Build HTML Assets
-        run: zensical build --clean
+        run: uv run --group docs zensical build --clean
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
