@@ -62,16 +62,7 @@ nav = [
 #
 #custom_dir = "overrides"
 
-# With the "favicon" option you can set your own image to use as the icon
-# browsers will use in the browser title bar or tab bar. The path provided
-# must be relative to the "docs_dir".
-#
-# Read more:
-# - https://zensical.org/docs/setup/logo-and-icons/#favicon
-# - https://developer.mozilla.org/en-US/docs/Glossary/Favicon
-#
-#favicon = "images/favicon.png"
-
+favicon = "https://github.com/developmentseed.png?size=32"
 # Zensical supports more than 60 different languages. This means that the
 # labels and tooltips that Zensical's templates produce are translated.
 # The "language" option allows you to set the language used. This language
@@ -236,25 +227,26 @@ features = [
 # ----------------------------------------------------------------------------
 [[project.theme.palette]]
 scheme = "default"
+primary = "indigo"
 accent = "deep orange"
 toggle.icon = "lucide/sun"
 toggle.name = "Switch to dark mode"
 
 [[project.theme.palette]]
 scheme = "slate"
+primary = "indigo"
 accent = "deep orange"
 toggle.icon = "lucide/moon"
 toggle.name = "Switch to light mode"
-
 # ----------------------------------------------------------------------------
 # In the "font" subsection you can configure the fonts used. By default, fonts
 # are loaded from Google Fonts, giving you a wide range of choices from a set
 # of suitably licensed fonts. There are options for a normal text font and for
 # a monospaced font used in code blocks.
 # ----------------------------------------------------------------------------
-#[project.theme.font]
-#text = "Inter"
-#code = "Jetbrains Mono"
+# [project.theme.font]
+text = "Roboto"
+code = "Roboto Mono"
 
 # ----------------------------------------------------------------------------
 # You can configure your own logo to be shown in the header using the "logo"
@@ -281,6 +273,14 @@ repo = "fontawesome/brands/github"
 [[project.extra.social]]
 icon = "fontawesome/brands/github"
 link = "https://github.com/developmentseed"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/linkedin"
+link = "https://www.linkedin.com/company/development-seed"
+
+[[project.extra.social]]
+icon = "fontawesome/solid/paper-plane"
+link = "mailto:<info@developmentseed.org>"
 
 # ----------------------------------------------------------------------------
 # The "extensions" and "plugins" sections contains even more settings.
