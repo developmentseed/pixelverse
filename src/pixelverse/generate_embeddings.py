@@ -1,3 +1,7 @@
+"""
+Embeddings generation and quantization functions.
+"""
+
 import numpy as np
 import rioxarray  # noqa: F401
 import torch

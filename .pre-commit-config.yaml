@@ -31,13 +31,10 @@ repos:
     hooks:
       - id: pyproject-fmt
 
-  - repo: https://github.com/executablebooks/mdformat
-    rev: 1.0.0
+  - repo: https://github.com/rvben/rumdl-pre-commit
+    rev: v0.1.22
     hooks:
-      - id: mdformat
-        additional_dependencies:
-          - mdformat-mkdocs==5.1.2
-          - mdformat-footnote==0.1.2
+      - id: rumdl-fmt # Auto-format and fail if issues remain
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.42.0

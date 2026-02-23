@@ -1,3 +1,7 @@
+"""
+Retrieve and process Sentinel-1 Ground Range Detected (GRD) data.
+"""
+
 import pandas as pd
 import xarray as xr
 from odc.stac import stac_load
@@ -9,7 +13,8 @@ def get_s1_monthly_time_series(
     year: int,
     stac_host: str = "https://planetarycomputer.microsoft.com/api/stac/v1",
 ) -> xr.Dataset:
-    """Fetch Sentinel-1 imagery for a bounding box and return average monthly values.
+    """
+    Fetch Sentinel-1 imagery for a bounding box and return average monthly values.
 
     Parameters
     ----------
@@ -53,7 +58,8 @@ def get_s1_monthly_time_series(
 
 
 def linear_to_decibel(dataarray: xr.DataArray) -> xr.DataArray:
-    """Transform VV or VH values from linear to decibel scale.
+    """
+    Transform VV or VH values from linear to decibel scale.
 
     Parameters
     ----------

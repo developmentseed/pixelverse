@@ -48,6 +48,10 @@ dev = [
   "ruff>=0.14.1",
   "ty>=0.0.11",
 ]
+docs = [
+  "mkdocstrings-python>=2.0.1",
+  "zensical>=0.0.23",
+]
 
 [tool.ruff]
 target-version = "py313"
@@ -133,6 +137,13 @@ checks = [
   "RT02",
   "RT03",
 ]
+
+[tool.rumdl]
+line-length = 88
+flavor = "mkdocs"
+
+[tool.rumdl.per-file-ignores]
+"README.md" = [ "MD033" ] # Allow HTML in README
 
 [tool.typos.default.extend-words]
 inpt = "inpt"
