@@ -46,6 +46,9 @@ uv run python -c "import pixelverse as pv; print(pv.list_models())"
   geospatial foundation model. It takes as input a 14-channel time series of pixel
   values, `(10 S2 bands, 1 S2 DOY, 2 S1 bands, and 1 S1 DOY)` and outputs a
   `128`-dimensional embedding.
+- [**Presto**](https://arxiv.org/abs/2304.14065): Pixelverse exposes the pretrained
+  Presto encoder for embedding workflows (rather than the full reconstruction decoder
+  model).
 
 ### Citing
 

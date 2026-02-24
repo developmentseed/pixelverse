@@ -1,9 +1,12 @@
+import importlib
+
 import numpy as np
 import pytest
 import xarray as xr
 
-import pixelverse as pv
 from pixelverse.generate_embeddings import generate_embeddings, quantize_embeddings
+
+torchgeo_tessera = importlib.import_module("torchgeo.models.tessera")
 
 
 @pytest.fixture
@@ -113,8 +116,8 @@ def test_quantize_full_pipeline(sample_s2_dataset, mocker):
     2. Embedding quantization: from float32 to uint8 dtype
     """
     # Generate embeddings
-    spy_transform = mocker.spy(pv.models.transforms.PixelTimeSeriesNormalize, "forward")
-    spy_encoder = mocker.spy(pv.models.tessera.TransformerEncoder, "forward")
+    spy_transform = mocker.spy(torchgeo_tessera._PixelTimeSeriesNormalize, "forward")
+    spy_encoder = mocker.spy(torchgeo_tessera.TransformerEncoder, "forward")
     embeddings_ds = generate_embeddings(sample_s2_dataset)
     assert embeddings_ds.embedding.dtype == np.float32
     assert spy_transform.call_count == 1  # ensure norm transform called exactly once
