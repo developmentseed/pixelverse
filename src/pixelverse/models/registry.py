@@ -1,26 +1,22 @@
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 import torch
+from torchgeo.models import Presto_Weights, Tessera_Weights, presto, tessera
 from torchvision.models._api import WeightsEnum
 
-from pixelverse.models.tessera import (
-    TESSERA_WEIGHTS,
-    tessera,
-    tessera_s1_encoder,
-    tessera_s2_encoder,
-)
-
 _models: dict[str, Callable[..., torch.nn.Module]] = {
+    "presto": presto,
     "tessera": tessera,
-    "tessera_s2_encoder": tessera_s2_encoder,
-    "tessera_s1_encoder": tessera_s1_encoder,
+    "tessera_s2_encoder": tessera,
+    "tessera_s1_encoder": tessera,
 }
 
 _model_weights: dict[str, WeightsEnum] = {
-    "tessera": TESSERA_WEIGHTS.TESSERA,
-    "tessera_s2_encoder": TESSERA_WEIGHTS.TESSERA_S2_ENCODER,
-    "tessera_s1_encoder": TESSERA_WEIGHTS.TESSERA_S1_ENCODER,
+    "presto": Presto_Weights.PRESTO,
+    "tessera": Tessera_Weights.TESSERA,
+    "tessera_s2_encoder": Tessera_Weights.TESSERA_SENTINEL2_ENCODER,
+    "tessera_s1_encoder": Tessera_Weights.TESSERA_SENTINEL1_ENCODER,
 }
 
 
@@ -34,9 +30,7 @@ def get_weights(name: str) -> WeightsEnum:
     return _model_weights[name]
 
 
-def create_model(
-    name: str, pretrained: bool = True, *args: Any, **kwargs: Any
-) -> tuple[torch.nn.Module, Callable]:
+def create_model(name: str, *args: Any, **kwargs: Any) -> tuple[torch.nn.Module, Callable]:
     """
     Load neural network model and transforms.
 
@@ -44,8 +38,6 @@ def create_model(
     ----------
     name : str
         Name of model to instantiate.
-    pretrained : bool
-        Load pretrained model weights. Default: True
     *args
         Additional arguments passed to model creation function.
     **kwargs
@@ -57,14 +49,12 @@ def create_model(
     model : torch.nn.Module
         Loaded neural network model.
     transforms : Callable
-        Transforms to apply on data before passing passing into model.
+        Transforms to apply on data before passing into model.
 
     """
-    if pretrained:
-        weights = get_weights(name=name)
-        model = _models[name](weights, *args, **kwargs)
-        transforms: Callable = weights.transforms
-    else:
-        model = _models[name](*args, **kwargs)
-        transforms = torch.nn.Sequential(torch.nn.Identity())
+    weights = get_weights(name=name)
+    model = _models[name](weights, *args, **kwargs)
+    if name == "presto":
+        model = cast(torch.nn.Module, model.encoder)
+    transforms: Callable = weights.transforms
     return model, transforms
