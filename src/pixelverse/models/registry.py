@@ -49,7 +49,7 @@ def create_model(name: str, *args: Any, **kwargs: Any) -> tuple[torch.nn.Module,
     model : torch.nn.Module
         Loaded neural network model.
     transforms : Callable
-        Transforms to apply on data before passing passing into model.
+        Transforms to apply on data before passing into model.
 
     """
     weights = get_weights(name=name)
