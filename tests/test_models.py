@@ -31,6 +31,9 @@ def test_olmoearth_patch_size_1_preserves_spatial_shape():
     model = olmoearth_nano()
     weights = pv.get_weights("olmoearth_nano")
     transforms = weights.transforms
+    assert weights.meta["input_shape"][0] == (None, None, 12, None, None)
+    assert weights.meta["timestamps_shape"][0] == (None, None, 3)
+    assert weights.meta["output_shape"][0] == (None, None, None, weights.meta["embed_dim"])
 
     batch, time_steps, channels, height, width = 2, 3, 12, 16, 16
     x = torch.randint(0, 10000, (batch, time_steps, channels, height, width), dtype=torch.int32)
