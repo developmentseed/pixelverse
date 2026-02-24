@@ -4,6 +4,13 @@ from typing import Any
 import torch
 from torchvision.models._api import WeightsEnum
 
+from pixelverse.models.olmoearth import (
+    OLMOEARTH_WEIGHTS,
+    olmoearth_base,
+    olmoearth_large,
+    olmoearth_nano,
+    olmoearth_tiny,
+)
 from pixelverse.models.tessera import (
     TESSERA_WEIGHTS,
     tessera,
@@ -12,12 +19,20 @@ from pixelverse.models.tessera import (
 )
 
 _models: dict[str, Callable[..., torch.nn.Module]] = {
+    "olmoearth_nano": olmoearth_nano,
+    "olmoearth_tiny": olmoearth_tiny,
+    "olmoearth_base": olmoearth_base,
+    "olmoearth_large": olmoearth_large,
     "tessera": tessera,
     "tessera_s2_encoder": tessera_s2_encoder,
     "tessera_s1_encoder": tessera_s1_encoder,
 }
 
 _model_weights: dict[str, WeightsEnum] = {
+    "olmoearth_nano": OLMOEARTH_WEIGHTS.OLMOEARTH_NANO,
+    "olmoearth_tiny": OLMOEARTH_WEIGHTS.OLMOEARTH_TINY,
+    "olmoearth_base": OLMOEARTH_WEIGHTS.OLMOEARTH_BASE,
+    "olmoearth_large": OLMOEARTH_WEIGHTS.OLMOEARTH_LARGE,
     "tessera": TESSERA_WEIGHTS.TESSERA,
     "tessera_s2_encoder": TESSERA_WEIGHTS.TESSERA_S2_ENCODER,
     "tessera_s1_encoder": TESSERA_WEIGHTS.TESSERA_S1_ENCODER,
