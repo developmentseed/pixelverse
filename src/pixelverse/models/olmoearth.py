@@ -192,7 +192,6 @@ def _olmoearth_meta(model_size: OlmoEarthModelSize, variant_name: str) -> dict[s
         "patch_size": OLMOEARTH_S2_PATCH_SIZE,
         "input_res": OLMOEARTH_S2_INPUT_RES,
         "variant": variant_name,
-        "skip_pretrained_test": True,
     }
 
 
