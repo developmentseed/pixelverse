@@ -3,6 +3,7 @@ from typing import Any, Literal, cast
 import torch
 from einops import rearrange
 from olmoearth_pretrain_minimal import ModelID, Normalizer, OlmoEarthPretrain_v1, load_model_from_id
+from olmoearth_pretrain_minimal.olmoearth_pretrain_v1.nn.flexi_vit import PoolingType
 from olmoearth_pretrain_minimal.olmoearth_pretrain_v1.utils.constants import Modality
 from olmoearth_pretrain_minimal.olmoearth_pretrain_v1.utils.datatypes import MaskedOlmoEarthSample
 from torchvision.models._api import Weights, WeightsEnum
@@ -38,7 +39,7 @@ OLMOEARTH_S2_STAC_BANDS = [
     "swir22",
 ]
 
-OLMOEARTH_S2_PATCH_SIZE = 8
+OLMOEARTH_S2_PATCH_SIZE = 1
 OLMOEARTH_S2_INPUT_RES = 10
 
 _MODEL_SIZE_TO_ID: dict[str, ModelID] = {
@@ -115,7 +116,7 @@ class OlmoEarthS2Encoder(torch.nn.Module):
         OLMoEarth model variant to load.
     load_weights : bool, default=True
         Whether to load pretrained weights from the upstream package.
-    patch_size : int, default=8
+    patch_size : int, default=1
         Patch size passed to the encoder.
     input_res : int, default=10
         Input spatial resolution (meters) passed to the encoder.
@@ -175,7 +176,7 @@ class OlmoEarthS2Encoder(torch.nn.Module):
             input_res=self.input_res,
             fast_pass=self.fast_pass,
         )
-        return output["tokens_and_masks"].pool_unmasked_tokens()
+        return output["tokens_and_masks"].pool_spatially(PoolingType.MEAN)
 
 
 def _olmoearth_meta(model_size: OlmoEarthModelSize, variant_name: str) -> dict[str, Any]:
@@ -187,7 +188,7 @@ def _olmoearth_meta(model_size: OlmoEarthModelSize, variant_name: str) -> dict[s
         "embed_dim": _MODEL_SIZE_TO_EMBED_DIM[model_size],
         "input_shape": [(None, 2, len(OLMOEARTH_S2_BANDS), 16, 16)],
         "timestamps_shape": [(None, 2, 3)],
-        "output_shape": [(None, _MODEL_SIZE_TO_EMBED_DIM[model_size])],
+        "output_shape": [(None, 16, 16, _MODEL_SIZE_TO_EMBED_DIM[model_size])],
         "patch_size": OLMOEARTH_S2_PATCH_SIZE,
         "input_res": OLMOEARTH_S2_INPUT_RES,
         "variant": variant_name,

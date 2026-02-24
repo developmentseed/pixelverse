@@ -50,7 +50,8 @@ uv run python -c "import pixelverse as pv; print(pv.list_models())"
   Sentinel-2 variants are available in the registry as `olmoearth_nano`,
   `olmoearth_tiny`, `olmoearth_base`, and `olmoearth_large`. The current Pixelverse
   wrapper accepts `B,T,C,H,W` image tensors plus explicit timestamps (`B,T,3`) and
-  returns chip-level embeddings.
+  returns patch-level embeddings. By default, `patch_size=1`, so output `H,W`
+  matches input `H,W`.
 
 Model-specific input requirements (for example, Sentinel-2 STAC band names) are
 available in weights metadata:
