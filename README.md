@@ -46,6 +46,21 @@ uv run python -c "import pixelverse as pv; print(pv.list_models())"
   geospatial foundation model. It takes as input a 14-channel time series of pixel
   values, `(10 S2 bands, 1 S2 DOY, 2 S1 bands, and 1 S1 DOY)` and outputs a
   `128`-dimensional embedding.
+- [**OLMoEarth**](https://github.com/allenai/olmoearth_pretrain_minimal): OLMoEarth
+  Sentinel-2 variants are available in the registry as `olmoearth_nano`,
+  `olmoearth_tiny`, `olmoearth_base`, and `olmoearth_large`. The current Pixelverse
+  wrapper accepts `B,T,C,H,W` image tensors plus explicit timestamps (`B,T,3`) and
+  returns chip-level embeddings.
+
+Model-specific input requirements (for example, Sentinel-2 STAC band names) are
+available in weights metadata:
+
+```python
+import pixelverse as pv
+
+weights = pv.get_weights("olmoearth_nano")
+print(weights.meta["s2_stac_bands"])
+```
 
 ### Citing
 
