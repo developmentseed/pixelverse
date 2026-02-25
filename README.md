@@ -60,7 +60,7 @@ available in weights metadata:
 import pixelverse as pv
 
 weights = pv.get_weights("olmoearth_nano")
-print(weights.meta["s2_stac_bands"])
+print(weights.meta["s2_asset_names"])
 ```
 
 ### Citing

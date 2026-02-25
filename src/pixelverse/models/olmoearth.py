@@ -183,7 +183,7 @@ def _olmoearth_meta(model_size: OlmoEarthModelSize, variant_name: str) -> dict[s
     return {
         "model_id": _MODEL_SIZE_TO_ID[model_size].value,
         "bands": OLMOEARTH_S2_BANDS,
-        "s2_stac_bands": OLMOEARTH_S2_STAC_BANDS,
+        "s2_asset_names": OLMOEARTH_S2_STAC_BANDS,
         "num_channels": len(OLMOEARTH_S2_BANDS),
         "embed_dim": _MODEL_SIZE_TO_EMBED_DIM[model_size],
         "input_shape": [(None, None, len(OLMOEARTH_S2_BANDS), None, None)],

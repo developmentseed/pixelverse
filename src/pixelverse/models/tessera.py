@@ -219,7 +219,7 @@ class TESSERA_WEIGHTS(WeightsEnum):
         url="https://hf.co/isaaccorley/tessera/resolve/51afe75b724d387ef9fcb6f6e090a5be0b906919/model.pt",
         transforms=tessera_transforms,
         meta={
-            "s2_stac_bands": S2_STAC_BANDS_TESSERA,
+            "s2_asset_names": S2_STAC_BANDS_TESSERA,
             "bands": [
                 "B2",
                 "B3",
@@ -248,7 +248,7 @@ class TESSERA_WEIGHTS(WeightsEnum):
         url="https://hf.co/isaaccorley/tessera/resolve/11dda783c258148bc6342832df6ef8dc05963702/s2_encoder.pt",
         transforms=tessera_s2_transforms,
         meta={
-            "s2_stac_bands": S2_STAC_BANDS_TESSERA,
+            "s2_asset_names": S2_STAC_BANDS_TESSERA,
             "bands": [
                 "B2",
                 "B3",

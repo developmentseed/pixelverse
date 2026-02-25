@@ -16,7 +16,7 @@ def get_s2_time_series(
     year: int,
     stac_host: str = "https://earth-search.aws.element84.com/v1",
     cloudcover_max: int = 20,
-    bands: Sequence[str] = (
+    assets: Sequence[str] = (
         "blue",
         "green",
         "red",
@@ -42,8 +42,8 @@ def get_s2_time_series(
         STAC host URL. Defaults to Earth Search AWS.
     cloudcover_max : int
         Maximum cloud cover percentage for filtering images. Defaults to 50.
-    bands : Sequence[str]
-        Sentinel-2 band asset names to load. Defaults to the Tessera-compatible S2 band set.
+    assets : Sequence[str]
+        Sentinel-2 asset names to load. Defaults to the Tessera-compatible asset set.
 
     Returns
     -------
@@ -98,7 +98,7 @@ def get_s2_time_series(
         selected_items,
         bbox=bbox,
         chunks={"time": 1, "x": 2048, "y": 2048},
-        bands=list(bands),
+        bands=list(assets),
         resolution=10,  # 10m resolution,
         dtype="uint16",
         nodata=0,
