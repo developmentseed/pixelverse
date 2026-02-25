@@ -25,18 +25,18 @@ OLMOEARTH_S2_BANDS = [
 ]
 
 OLMOEARTH_S2_STAC_BANDS = [
-    "coastal",  # B01
     "blue",
     "green",
     "red",
+    "nir",
     "rededge1",
     "rededge2",
     "rededge3",
-    "nir",
     "nir08",
-    "nir09",  # B09
     "swir16",
     "swir22",
+    "coastal",
+    "nir09",
 ]
 
 OLMOEARTH_S2_PATCH_SIZE = 1
