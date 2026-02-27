@@ -25,6 +25,7 @@ dependencies = [
   "interpn[pydantic]>=0.11",
   "numpy>=2.4",
   "odc-stac>=0.4",
+  "olmoearth-pretrain-minimal>=0.0.2",
   "pystac>=1.14.1",
   "pystac-client>=0.9",
   "rasterix>=0.1.1",
