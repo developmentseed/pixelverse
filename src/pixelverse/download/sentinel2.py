@@ -2,12 +2,17 @@
 Retrieve and process Sentinel-2 Collection 1 Level 2A multispectral data.
 """
 
+import asyncio
 from collections import defaultdict
+from types import AsyncGeneratorType
 
 import pandas as pd
+import pystac
 import xarray as xr
 from odc.stac import stac_load
 from pystac_client import Client
+
+from pixelverse.download import stac_to_tiles
 
 
 def get_s2_time_series(
@@ -108,6 +113,53 @@ def get_s2_time_series(
     return dset_monthly
 
 
+async def get_s2_time_series_tiles(
+    items: list[pystac.Item],
+) -> AsyncGeneratorType[xr.Dataset]:
+    """
+    Yield a stack of Sentinel-2 multi-band tiles for each month of a specified year.
+
+    Calls [`stac_to_tiles`][pixelverse.download.stac_to_tiles] under the hood to do
+    multiple tile fetches asynchronously.
+
+    Parameters
+    ----------
+    items : list[pystac.Item]
+        Multiple STAC Item(s) containing one/multiple STAC Assets to read from.
+
+    Yields
+    ------
+    xr.Dataset
+        An xarray.Dataset tile containing a time-series of pixel data per band as
+        data_variables, with multiple items (at different timesteps) and bands stacked
+        into a tensor of shape (time: N, height, width).
+
+    """
+    tile_generators: list[AsyncGeneratorType[xr.Dataset]] = [
+        stac_to_tiles(item=item) for item in items
+    ]
+
+    while True:
+        async with asyncio.TaskGroup() as task_group:
+            tasks_tiles: list[asyncio.Task] = [
+                task_group.create_task(
+                    coro=anext(tile_gen),
+                )
+                for tile_gen in tile_generators
+            ]
+
+        # Get list of all TIFF tiles, i.e. multi-band Sentinel-2 images from different times
+        tiles: list[xr.Dataset] = await asyncio.gather(*tasks_tiles)
+
+        ds: xr.Dataset = xr.concat(objs=tiles, dim="time")
+        # time dim is first day of each month that appeared in the dataset
+        ds_monthly = ds.groupby("time.month").mean(dtype="uint16")
+        ds_monthly["month"] = ds.time.groupby("time.month").min().values
+        ds_monthly = ds_monthly.rename({"month": "time"})
+
+        yield ds_monthly
+
+
 def fill_missing_months_and_format(dset: xr.Dataset) -> xr.Dataset:
     """
     Fill missing months in the time series by forward filling previous data.
@@ -122,8 +174,8 @@ def fill_missing_months_and_format(dset: xr.Dataset) -> xr.Dataset:
     -------
     xr.Dataset
         An xarray Dataset wit day of year data variable added and missing months filled.
-    """
 
+    """
     # add doy variable to format for model inference
     dset["doy"] = dset.time.dt.dayofyear
 
