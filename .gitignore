@@ -23,6 +23,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Checkpoints
+*.pt2
+
 # Virtual environments
 .venv/
 venv/
