@@ -8,6 +8,10 @@ icon: lucide/book-marked
 
 ::: pixelverse.download.sentinel1
 ::: pixelverse.download.sentinel2
+::: pixelverse.download.stac_to_xr
+    options:
+      members:
+      - stac_to_tiles
 
 ## Embedding creation
 

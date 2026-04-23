@@ -178,7 +178,7 @@ async def stac_to_tiles(
     ------
     xr.Dataset
         An xarray.Dataset tile containing the pixel data per band as data_variables, and
-        each band stacked in the shape of (time, height, width).
+        each band stacked in the shape of (time: 1, height, width).
 
     """
     # Loop through STAC Assets (bands)
