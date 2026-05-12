@@ -50,7 +50,7 @@ repos:
         entry: .venv/bin/ty check
         args: [--python=.venv/]
         pass_filenames: true
-        exclude: "^notebooks/"
+        exclude: "^notebooks/|^scripts/"
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.9.24
