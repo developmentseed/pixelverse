@@ -3,6 +3,7 @@ Retrieve and process Sentinel-2 Collection 1 Level 2A multispectral data.
 """
 
 from collections import defaultdict
+from collections.abc import Sequence
 
 import pandas as pd
 import xarray as xr
@@ -15,6 +16,18 @@ def get_s2_time_series(
     year: int,
     stac_host: str = "https://earth-search.aws.element84.com/v1",
     cloudcover_max: int = 20,
+    assets: Sequence[str] = (
+        "blue",
+        "green",
+        "red",
+        "rededge1",
+        "rededge2",
+        "rededge3",
+        "nir",
+        "nir08",
+        "swir16",
+        "swir22",
+    ),
 ) -> xr.Dataset:
     """
     Fetch Sentinel-2 imagery for a bounding box for each month of a specified year.
@@ -29,6 +42,8 @@ def get_s2_time_series(
         STAC host URL. Defaults to Earth Search AWS.
     cloudcover_max : int
         Maximum cloud cover percentage for filtering images. Defaults to 50.
+    assets : Sequence[str]
+        Sentinel-2 asset names to load. Defaults to the Tessera-compatible asset set.
 
     Returns
     -------
@@ -83,18 +98,7 @@ def get_s2_time_series(
         selected_items,
         bbox=bbox,
         chunks={"time": 1, "x": 2048, "y": 2048},
-        bands=[
-            "blue",
-            "green",
-            "red",
-            "rededge1",
-            "rededge2",
-            "rededge3",
-            "nir",
-            "nir08",
-            "swir16",
-            "swir22",
-        ],
+        bands=list(assets),
         resolution=10,  # 10m resolution,
         dtype="uint16",
         nodata=0,

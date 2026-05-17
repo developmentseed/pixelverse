@@ -7,6 +7,19 @@ from torchvision.models._api import Weights, WeightsEnum
 
 from pixelverse.models.transforms import PixelTimeSeriesNormalize
 
+S2_STAC_BANDS_TESSERA = [
+    "blue",
+    "green",
+    "red",
+    "rededge1",
+    "rededge2",
+    "rededge3",
+    "nir",
+    "nir08",
+    "swir16",
+    "swir22",
+]
+
 S2_BAND_MEAN = [
     1711.0938,
     1308.8511,
@@ -206,6 +219,7 @@ class TESSERA_WEIGHTS(WeightsEnum):
         url="https://hf.co/isaaccorley/tessera/resolve/51afe75b724d387ef9fcb6f6e090a5be0b906919/model.pt",
         transforms=tessera_transforms,
         meta={
+            "s2_asset_names": S2_STAC_BANDS_TESSERA,
             "bands": [
                 "B2",
                 "B3",
@@ -234,6 +248,7 @@ class TESSERA_WEIGHTS(WeightsEnum):
         url="https://hf.co/isaaccorley/tessera/resolve/11dda783c258148bc6342832df6ef8dc05963702/s2_encoder.pt",
         transforms=tessera_s2_transforms,
         meta={
+            "s2_asset_names": S2_STAC_BANDS_TESSERA,
             "bands": [
                 "B2",
                 "B3",
