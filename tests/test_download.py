@@ -2,7 +2,8 @@
 Tests for downloading Sentinel-1 and Sentinel-2 imagery.
 """
 
-from types import AsyncGeneratorType
+import copy
+from typing import TYPE_CHECKING
 
 import affine
 import async_tiff
@@ -20,6 +21,10 @@ from pixelverse.download import (
     open_tiff,
     stac_to_tiles,
 )
+from pixelverse.download.sentinel2 import get_s2_time_series_tiles
+
+if TYPE_CHECKING:
+    from types import AsyncGeneratorType
 
 
 # %%
@@ -146,5 +151,31 @@ async def test_stac_to_tiles(stac_item):
     )
 
     # Yield second tile
+    tile = await anext(tilegen)
+    assert isinstance(tile, xr.Dataset)
+
+
+async def test_get_s2_time_series_tiles(stac_item):
+    """
+    Tests opening multiple STAC items produces xarray.Dataset time-series tiles.
+    """
+    stac_item2 = copy.deepcopy(stac_item)
+    stac_item2.properties["datetime"] = "2025-10-14T00:00:00.000000"
+    items: list[pystac.Item] = [stac_item, stac_item2]
+
+    tilegen: AsyncGeneratorType[xr.Dataset] = get_s2_time_series_tiles(items=items)
+
+    # Yield first time-series tile
+    ds: xr.Dataset = await anext(tilegen)
+    assert ds.sizes == {"x": 1024, "y": 1024, "time": 2}
+    assert set(ds.dtypes.values()) == {np.dtypes.UInt16DType()}
+    assert ds.xindexes["time"].index.to_list() == [
+        pd.Timestamp("2021-04-14 08:20:24.721000"),
+        pd.Timestamp("2025-10-14 00:00:00.000000"),
+    ]
+    assert ds.attrs["s2:processing_baseline"] == "05.00"
+    assert ds.attrs["grid:code"] == "MGRS-36MVD"
+
+    # Yield second time-series tile
     tile = await anext(tilegen)
     assert isinstance(tile, xr.Dataset)
